@@ -2,9 +2,14 @@
   "name": "gh-benchmarks",
   "version": "0.0.0",
   "description": "Server to run benchmarks for public Github repos",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies" : {
+    "express" : "*",
+    "mongoose" : "*",
+    "async" : "*"
   },
   "repository": {
     "type": "git",
