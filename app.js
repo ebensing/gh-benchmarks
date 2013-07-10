@@ -5,6 +5,7 @@
 var mongoose = require('mongoose');
 var async = require('async');
 var http = require('http');
+var qs = require('querystring');
 
 var config = require('./config/server.js')
 
@@ -24,7 +25,8 @@ http.createServer(function (req, res) {
     reqData += data.toString();
   });
   req.on('end', function () {
-    console.log(reqData);
+    var reqJson = qs.parse(reqData);
+    console.log(reqJson);
     res.writeHead(200, "OK", {'Content-Type': 'text/html'});
     res.end();
   });
