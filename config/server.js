@@ -6,7 +6,7 @@
  * data.
  */
 
-exports.mongoDBurl = "mongodb://localhost/gh-benchmarks";
+exports.mongoDBuri = "mongodb://localhost/gh-benchmarks";
 
 
 /**

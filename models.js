@@ -5,21 +5,21 @@ var Schema = mongoose.Schema;
 var JobDesc = new Schema({
     title : String,
     repoUrl : String,
-    branchName : String,
+    ref : String,
     tasks: [{ title : String, command : String, fields : {}}],
     charts: [{ title : String, type : { type : String }, data : {}}]
 });
 
 var Run = new Schema({
     ts : Date,
-    JobId : { Schema.Types.ObjectId, ref : 'JobDesc' },
+    JobId : { type : Schema.Types.ObjectId, ref : 'JobDesc' },
     status : String,
     lastCommit : String
 });
 
 var TaskRun = new Schema({
     ts : Date,
-    RunId : { Schema.Types.ObjectId, ref : 'Run' },
+    RunId : { type : Schema.Types.ObjectId, ref : 'Run' },
     status : String,
     data : {},
     rawOut : String
