@@ -13,6 +13,6 @@ exports.mongoDBurl = "mongodb://localhost/gh-benchmarks";
  * This the port that the server will run on. Defaults to port 80
  */
 
-exports.port = 80;
+exports.port = 8080;
 
 
