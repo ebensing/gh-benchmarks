@@ -45,7 +45,6 @@ mongoose.connect(config.mongoDBuri, function () {
         res.statysCode = 505;
         return res.end();
       }
-      console.log("hi");
       var reqData = '';
       req.on('data', function (data) {
         // get all of the incoming data
@@ -53,7 +52,7 @@ mongoose.connect(config.mongoDBuri, function () {
       });
       req.on('end', function () {
         // turn the data into an actual object that we can work with
-        var reqJson = JSON.parse(qs.parse(reqData));
+        var reqJson = qs.parse(reqData);
 
         // since you can't push 0 commits, this shouldn't ever error out
         var url = reqJson.payload.commits[0].url;
