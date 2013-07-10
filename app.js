@@ -10,7 +10,18 @@ var config = require('./config/server.js')
 
 
 http.createServer(function (req, res) {
-  console.log("Request Recieved");
-  console.log(req);
-  res.end();
+  if (req.headers['user-agent'].indexOf("Github Hookshot") == -1 ||
+      !req.headers['x-github-delivery'] || !req.headers['x-github-event']
+      || req.method != 'POST') {
+    res.write("Only Accept requests from Github\n");
+    res.statysCode = 505;
+    return res.end();
+  }
+  req.on('data', function (data) {
+    console.log(data);
+  });
+  req.on('end', function () {
+    res.writeHead(200, "OK", {'Content-Type': 'text/html'});
+    res.end();
+  });
 }).listen(config.port);
