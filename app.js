@@ -17,10 +17,13 @@ http.createServer(function (req, res) {
     res.statysCode = 505;
     return res.end();
   }
+  console.log("hi");
+  var reqData = '';
   req.on('data', function (data) {
-    console.log(data);
+    reqData += data.toString();
   });
   req.on('end', function () {
+    console.log(reqData);
     res.writeHead(200, "OK", {'Content-Type': 'text/html'});
     res.end();
   });
