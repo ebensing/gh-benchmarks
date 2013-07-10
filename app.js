@@ -10,7 +10,7 @@ var config = require('./config/server.js')
 
 
 http.createServer(function (req, res) {
-  if (req.headers['user-agent'].indexOf("Github Hookshot") == -1 ||
+  if (req.headers['user-agent'].indexOf("GitHub Hookshot") == -1 ||
       !req.headers['x-github-delivery'] || !req.headers['x-github-event']
       || req.method != 'POST') {
     console.log(req.headers);
