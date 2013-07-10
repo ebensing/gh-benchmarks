@@ -13,6 +13,7 @@ http.createServer(function (req, res) {
   if (req.headers['user-agent'].indexOf("Github Hookshot") == -1 ||
       !req.headers['x-github-delivery'] || !req.headers['x-github-event']
       || req.method != 'POST') {
+    console.log(req.headers);
     res.write("Only Accept requests from Github\n");
     res.statysCode = 505;
     return res.end();
