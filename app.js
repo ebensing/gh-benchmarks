@@ -52,12 +52,8 @@ mongoose.connect(config.mongoDBuri, function () {
       });
       req.on('end', function () {
         // turn the data into an actual object that we can work with
-        var reqJson = qs.parse(reqData);
-
-        // since you can't push 0 commits, this shouldn't ever error out
-        var url = reqJson.payload.commits[0].url;
-        url = url.substring(0, url.indexOf("/commit"));
-        console.log(url);
+        var reqJson = JSON.parse(qs.parse(reqData).payload);
+        console.log(reqJson.repository);
 
         res.writeHead(200, "OK", {'Content-Type': 'text/html'});
         res.end();
