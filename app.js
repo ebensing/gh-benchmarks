@@ -74,7 +74,51 @@ mongoose.connect(config.mongoDBuri, function () {
                 console.log(err);
                 return;
               }
-              console.log("done");
+              var allSucceed = true;
+              // time to run the actual benchmarks
+              async.eachSeries(run.job.tasks, function (task, cb) {
+                var command = utils.format("cd %s && ", repo_loc) + task.command;
+                exec(command, function (err, stdout, stderr) {
+                  var tr = new TaskRun({
+                    ts : new Date(),
+                    run : run.id
+                  });
+
+                  if (err) {
+                    tr.status = "error";
+                    tr.rawOut = err.toString();
+                    allSucceed = false;
+                    return tr.save(cb);
+                  }
+
+                  tr.status = "success";
+                  tr.rawOut = stdout.toString();
+                  tr.data = {};
+                  // parse the returned data and save it
+                  var outJson = JSON.prase(stdout.toString());
+                  var keys = Object.keys(task.fields);
+                  for (var i=0; i < keys.length; i++) {
+                    var k = keys[i];
+                    tr.data[k] = outJson[k];
+                  }
+                  tr.save(cb);
+                });
+              }, function (err) {
+                if (err || !allSucceed) {
+                  if (err) console.log(err);
+                  return runError(run);
+                }
+
+                run.finished = new Date();
+                run.status = "success";
+                run.save(function (err) {
+                  if (err) {
+                    console.log(err);
+                  }
+                  // time to build the results and push it back to Github
+                  console.log("done");
+                });
+              });
             });
           });
         });

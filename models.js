@@ -27,12 +27,13 @@ var Run = new Schema({
     ts : Date,
     job : { type : Schema.Types.ObjectId, ref : 'JobDesc' },
     status : String,
-    lastCommit : String
+    lastCommit : String,
+    finished : Date
 });
 
 var TaskRun = new Schema({
     ts : Date,
-    RunId : { type : Schema.Types.ObjectId, ref : 'Run' },
+    run : { type : Schema.Types.ObjectId, ref : 'Run' },
     status : String,
     data : {},
     rawOut : String
