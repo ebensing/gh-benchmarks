@@ -11,6 +11,9 @@ var fs = require('fs');
 var config = require('./config/server.js');
 var models = require('./models.js');
 
+// for debugging
+mongoose.set('debug', true);
+
 mongoose.connect(config.mongoDBuri, function () {
   var JobDesc = mongoose.model('JobDesc', models.JobDesc);
   var Run = mongoose.model('Run', models.Run);
