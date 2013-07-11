@@ -3,7 +3,7 @@
     {
       "title" : "Master Benchmarks",
       "repoUrl" : "https://github.com/LearnBoost/mongoose",
-      "ref" : "refs/head/master",
+      "ref" : "refs/heads/master",
       "tasks" : [
         { "title" : "insert", "command" : "node test.js", "fields" : { "totalDocs" : 1, "dps" : 1, "time" : 1 }},
         { "title" : "update", "command" : "node test.js", "fields" :{ "totalDocs" : 1, "dps" : 1, "time" : 1 }}
@@ -15,7 +15,7 @@
     {
       "title" : "Master Benchmarks dotfiles",
       "repoUrl" : "https://github.com/ebensing/dotfiles",
-      "ref" : "refs/head/master",
+      "ref" : "refs/heads/master",
       "tasks" : [
         { "title" : "insert", "command" : "node test.js", "fields" : { "totalDocs" : 1, "dps" : 1, "time" : 1 }},
         { "title" : "update", "command" : "node test.js", "fields" :{ "totalDocs" : 1, "dps" : 1, "time" : 1 }}
