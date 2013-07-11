@@ -95,7 +95,7 @@ mongoose.connect(config.mongoDBuri, function () {
                   tr.rawOut = stdout.toString();
                   tr.data = {};
                   // parse the returned data and save it
-                  var outJson = JSON.prase(stdout.toString());
+                  var outJson = JSON.parse(stdout.toString());
                   var keys = Object.keys(task.fields);
                   for (var i=0; i < keys.length; i++) {
                     var k = keys[i];
