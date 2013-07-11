@@ -51,78 +51,92 @@ mongoose.connect(config.mongoDBuri, function () {
           console.log(err);
           return;
         }
+        async.waterfall([
+          function (callback) {
+            // clone the repo
+            git.clone(run.job.repoUrl, callback);
 
-        // clone the repo
-        git.clone(run.job.repoUrl, function (err, repo_loc) {
-          if (err) {
-            console.log(err);
-            return;
-          }
-          git.checkout_ref(repo_loc, run.job.cVal, function (err) {
-            if (err) {
-              console.log(err);
-              return;
-            }
+          }, function (repo_loc, callback) {
+
+            // switch to the correct ref
+            git.checkout_ref(repo_loc, run.job.cVal, function (err) {
+              callback(err, repo_loc);
+            });
+
+          }, function (repo_loc, callback) {
+
             // run the setup work
             var before = run.job.before.map(function (item) {
               return utils.format("cd %s && ", repo_loc) + item;
             });
-            async.eachSeries(before, function (command, cb) {
-              exec(command, cb);
+            async.eachSeries(before, function (command, bcb) {
+              exec(command, bcb);
             }, function (err) {
-              if (err) {
-                console.log(err);
-                return;
-              }
-              var allSucceed = true;
-              // time to run the actual benchmarks
-              async.eachSeries(run.job.tasks, function (task, cb) {
-                var command = utils.format("cd %s && ", repo_loc) + task.command;
-                exec(command, function (err, stdout, stderr) {
-                  var tr = new TaskRun({
-                    ts : new Date(),
-                    run : run.id
-                  });
+              callback(err, repo_loc);
+            });
 
-                  if (err) {
-                    tr.status = "error";
-                    tr.rawOut = err.toString();
-                    allSucceed = false;
-                    return tr.save(cb);
-                  }
+          }, function (repo_loc, callback) {
 
-                  tr.status = "success";
-                  tr.rawOut = stdout.toString();
-                  tr.data = {};
-                  // parse the returned data and save it
-                  var outJson = JSON.parse(stdout.toString());
-                  var keys = Object.keys(task.fields);
-                  for (var i=0; i < keys.length; i++) {
-                    var k = keys[i];
-                    tr.data[k] = outJson[k];
-                  }
-                  tr.save(cb);
+            var allSucceed = true;
+            // time to run the actual benchmarks
+            async.eachSeries(run.job.tasks, function (task, bcb) {
+              var command = utils.format("cd %s && ", repo_loc) + task.command;
+              exec(command, function (err, stdout, stderr) {
+                var tr = new TaskRun({
+                  ts : new Date(),
+                  run : run.id
                 });
-              }, function (err) {
-                if (err || !allSucceed) {
-                  if (err) console.log(err);
-                  return runError(run);
+
+                if (err) {
+                  tr.status = "error";
+                  tr.rawOut = err.toString();
+                  allSucceed = false;
+                  return tr.save(bcb);
                 }
 
-                run.finished = new Date();
-                run.status = "success";
-                run.save(function (err) {
-                  if (err) {
-                    console.log(err);
-                  }
-                  // time to build the results and push it back to Github
-                  console.log("done");
-                });
+                tr.status = "success";
+                tr.rawOut = stdout.toString();
+                tr.data = {};
+                // parse the returned data and save it
+                var outJson = JSON.parse(stdout.toString());
+                var keys = Object.keys(task.fields);
+                for (var i=0; i < keys.length; i++) {
+                  var k = keys[i];
+                  tr.data[k] = outJson[k];
+                }
+                tr.save(bcb);
+              });
+            }, function (err) {
+              if (err || !allSucceed) {
+                return callback(err || new Error("One or more Tasks failed."));
+              }
+
+              run.finished = new Date();
+              run.status = "success";
+              run.save(function (err) {
+                callback(err, repo_loc);
               });
             });
-          });
-        });
 
+          }, function (repo_loc, callback) {
+            // TODO: generate the results file
+            callback(null, repo_loc);
+          }
+        ], function (err, repo_loc) {
+          if (err) {
+            console.log(err);
+            run.status = "error";
+            run.error = err;
+            run.finished = new Date();
+            // save it and go to cleanup
+            run.save(function (err) {
+              cleanup(err, repo_loc, cb);
+            });
+          }
+
+          // no error, go to cleanup
+          cleanup(null, repo_loc, cb);
+        });
       });
     }, 1);
 
@@ -176,4 +190,7 @@ mongoose.connect(config.mongoDBuri, function () {
   });
 });
 
-
+function cleanup(err, repo_loc, callback) {
+  console.log("done");
+  callback();
+}

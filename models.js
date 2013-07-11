@@ -28,7 +28,8 @@ var Run = new Schema({
     job : { type : Schema.Types.ObjectId, ref : 'JobDesc' },
     status : String,
     lastCommit : String,
-    finished : Date
+    finished : Date,
+    error : {}
 });
 
 var TaskRun = new Schema({
