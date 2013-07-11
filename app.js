@@ -45,11 +45,11 @@ mongoose.connect(config.mongoDBuri, function () {
     if (err) throw err;
 
     // this is the queue that will actually process all of the benchmarks
-    var runQ = async.queue(function (run, cb) {
+    var runQ = async.queue(function (run, queueCallback) {
       run.populate('job', function (err) {
         if (err) {
           console.log(err);
-          return;
+          return queueCallback(err);
         }
         async.waterfall([
           function (callback) {
@@ -69,8 +69,8 @@ mongoose.connect(config.mongoDBuri, function () {
             var before = run.job.before.map(function (item) {
               return utils.format("cd %s && ", repo_loc) + item;
             });
-            async.eachSeries(before, function (command, bcb) {
-              exec(command, bcb);
+            async.eachSeries(before, function (command, cb) {
+              exec(command, cb);
             }, function (err) {
               callback(err, repo_loc);
             });
@@ -79,7 +79,7 @@ mongoose.connect(config.mongoDBuri, function () {
 
             var allSucceed = true;
             // time to run the actual benchmarks
-            async.eachSeries(run.job.tasks, function (task, bcb) {
+            async.eachSeries(run.job.tasks, function (task, cb) {
               var command = utils.format("cd %s && ", repo_loc) + task.command;
               exec(command, function (err, stdout, stderr) {
                 var tr = new TaskRun({
@@ -91,7 +91,7 @@ mongoose.connect(config.mongoDBuri, function () {
                   tr.status = "error";
                   tr.rawOut = err.toString();
                   allSucceed = false;
-                  return tr.save(bcb);
+                  return tr.save(cb);
                 }
 
                 tr.status = "success";
@@ -104,7 +104,7 @@ mongoose.connect(config.mongoDBuri, function () {
                   var k = keys[i];
                   tr.data[k] = outJson[k];
                 }
-                tr.save(bcb);
+                tr.save(cb);
               });
             }, function (err) {
               if (err || !allSucceed) {
@@ -130,12 +130,12 @@ mongoose.connect(config.mongoDBuri, function () {
             run.finished = new Date();
             // save it and go to cleanup
             run.save(function (err) {
-              cleanup(err, repo_loc, cb);
+              cleanup(err, repo_loc, queueCallback);
             });
           }
 
           // no error, go to cleanup
-          cleanup(null, repo_loc, cb);
+          cleanup(null, repo_loc, queueCallback);
         });
       });
     }, 1);
