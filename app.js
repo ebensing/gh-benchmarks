@@ -53,6 +53,9 @@ mongoose.connect(config.mongoDBuri, function () {
       req.on('end', function () {
         // turn the data into an actual object that we can work with
         var reqJson = JSON.parse(qs.parse(reqData).payload);
+        JobDesc.findOne({ repoUrl : reqJson.repository.url, ref : reqJson.ref }, function (err, jd) {
+          console.log(jd);
+        });
         console.log(reqJson.repository);
 
         res.writeHead(200, "OK", {'Content-Type': 'text/html'});
