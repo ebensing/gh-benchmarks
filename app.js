@@ -42,6 +42,13 @@ mongoose.connect(config.mongoDBuri, function () {
   }, function (err) {
     if (err) throw err;
 
+    // this is the queue that will actually process all of the benchmarks
+    var runQ = async.queue(function (run, cb) {
+      run.populate('job', function (err) {
+        console.log(run.job);
+      });
+    }, 1);
+
     // start the listening server
     http.createServer(function (req, res) {
       // make sure things are coming from GitHub.. although these can be spoofed by
@@ -70,18 +77,16 @@ mongoose.connect(config.mongoDBuri, function () {
           // if we can't find a matching job, do nothing
           if (!jd) return;
 
-          git.clone(jd.repoUrl, function (err, repo_loc) {
-            if (err) {
-              console.log(err);
-              return;
-            }
-            git.checkout_ref(repo_loc, jd.cVal, function (err) {
-              if (err) {
-                console.log(err);
-                return;
-              }
-              console.log("done");
-            });
+          var run = new Run({
+            ts : new Date(),
+            job : jd.id,
+            status : 'pending',
+            lastCommit : reqJson.head_commit.id
+          });
+
+          // save the new task and put it on the queue
+          run.save(function (err) {
+            runQ.push(run);
           });
         });
 
@@ -95,3 +100,18 @@ mongoose.connect(config.mongoDBuri, function () {
 });
 
 
+/*
+ *git.clone(jd.repoUrl, function (err, repo_loc) {
+ *  if (err) {
+ *    console.log(err);
+ *    return;
+ *  }
+ *  git.checkout_ref(repo_loc, jd.cVal, function (err) {
+ *    if (err) {
+ *      console.log(err);
+ *      return;
+ *    }
+ *    console.log("done");
+ *  });
+ *});
+ */

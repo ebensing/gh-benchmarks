@@ -24,7 +24,7 @@ JobDesc.virtual('cVal').get(function () {
 
 var Run = new Schema({
     ts : Date,
-    JobId : { type : Schema.Types.ObjectId, ref : 'JobDesc' },
+    job : { type : Schema.Types.ObjectId, ref : 'JobDesc' },
     status : String,
     lastCommit : String
 });
