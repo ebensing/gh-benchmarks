@@ -25,9 +25,14 @@ mongoose.connect(config.mongoDBuri, function () {
     JobDesc.findOne({ title : job.title }, function (err, jdb) {
       if (err) return cb(err);
 
-      // if the job already exists in the db, just move on
+      // if the job already exists in the db, save any updated values
       if (jdb) {
-        cb();
+        var keys = Object.keys(job);
+        for (var i=0; i < keys.length; i++) {
+          var k = keys[i];
+          jdb[k] = job[k];
+        }
+        jdb.save(cb);
       } else {
         // else create it
         JobDesc.create(job, cb);
