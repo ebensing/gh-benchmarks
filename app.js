@@ -8,6 +8,7 @@ var http = require('http');
 var qs = require('querystring');
 var fs = require('fs');
 var utils = require('util');
+var exec = require('child_process').exec;
 
 var config = require('./config/server.js');
 var models = require('./models.js');
@@ -23,7 +24,7 @@ mongoose.connect(config.mongoDBuri, function () {
 
   var fileJobs = JSON.parse(fs.readFileSync("./config/jobs.json"));
 
-  async.forEach(fileJobs.jobs, function (job, cb) {
+  async.each(fileJobs.jobs, function (job, cb) {
     JobDesc.findOne({ title : job.title }, function (err, jdb) {
       if (err) return cb(err);
 
@@ -66,7 +67,15 @@ mongoose.connect(config.mongoDBuri, function () {
             var before = run.job.before.map(function (item) {
               return utils.format("cd %s && ", repo_loc) + item;
             });
-            console.log(before);
+            async.eachSeries(before, function (command, cb) {
+              exec(command, cb);
+            }, function (err) {
+              if (err) {
+                console.log(err);
+                return;
+              }
+              console.log("done");
+            });
           });
         });
 
