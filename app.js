@@ -66,7 +66,10 @@ mongoose.connect(config.mongoDBuri, function () {
             console.log(err);
             return;
           }
-          console.log(jd);
+          // if we can't find a matching job, do nothing
+          if (!jd) return;
+
+
         });
 
         res.writeHead(200, "OK", {'Content-Type': 'text/html'});

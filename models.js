@@ -5,9 +5,13 @@ var Schema = mongoose.Schema;
 var JobDesc = new Schema({
     title : String,
     repoUrl : String,
-    ref : String,
+    branch : String,
     tasks: [{ title : String, command : String, fields : {}}],
     charts: [{ title : String, type : { type : String }, data : {}}]
+});
+
+JobDesc.virtuals('ref').get(function () {
+  return 'refs/heads/' + this.branch;
 });
 
 var Run = new Schema({
