@@ -11,6 +11,18 @@
       "charts" : [
         { "title" : "insert", "type" : "bar", "data" : { "bar1" : { "taskTitle" : "insert", "dataField" : "dps"}, "x" : "time", "y" : "dps" }}
       ]
+    },
+    {
+      "title" : "Master Benchmarks dotfiles",
+      "repoUrl" : "https://github.com/ebensing/dotfiles",
+      "ref" : "refs/head/master",
+      "tasks" : [
+        { "title" : "insert", "command" : "node test.js", "fields" : { "totalDocs" : 1, "dps" : 1, "time" : 1 }},
+        { "title" : "update", "command" : "node test.js", "fields" :{ "totalDocs" : 1, "dps" : 1, "time" : 1 }}
+      ],
+      "charts" : [
+        { "title" : "insert", "type" : "bar", "data" : { "bar1" : { "taskTitle" : "insert", "dataField" : "dps"}, "x" : "time", "y" : "dps" }}
+      ]
     }
   ]
 }
