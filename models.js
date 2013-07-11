@@ -7,7 +7,8 @@ var JobDesc = new Schema({
     repoUrl : String,
     ref : String,
     tasks: [{ title : String, command : String, fields : {}}],
-    charts: [{ title : String, type : { type : String }, data : {}}]
+    charts: [{ title : String, type : { type : String }, data : {}}],
+    before: [String]
 });
 
 JobDesc.virtual('branch').get(function () {

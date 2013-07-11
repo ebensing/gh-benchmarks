@@ -10,7 +10,8 @@
       ],
       "charts" : [
         { "title" : "insert", "type" : "bar", "data" : { "bar1" : { "taskTitle" : "insert", "dataField" : "dps"}, "x" : "time", "y" : "dps" }}
-      ]
+      ],
+      "before" : ["echo 'hello world!' > test1.txt", "touch test2"]
     },
     {
       "title" : "Master Benchmarks dotfiles",
@@ -22,7 +23,8 @@
       ],
       "charts" : [
         { "title" : "insert", "type" : "bar", "data" : { "bar1" : { "taskTitle" : "insert", "dataField" : "dps"}, "x" : "time", "y" : "dps" }}
-      ]
+      ],
+      "before" : ["echo 'hello world!' > test1.txt", "touch test2"]
     }
   ]
 }

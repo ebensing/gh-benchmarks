@@ -50,6 +50,7 @@ mongoose.connect(config.mongoDBuri, function () {
           return;
         }
 
+        // clone the repo
         git.clone(run.job.repoUrl, function (err, repo_loc) {
           if (err) {
             console.log(err);
@@ -60,7 +61,11 @@ mongoose.connect(config.mongoDBuri, function () {
               console.log(err);
               return;
             }
-            console.log("done");
+            // run the setup work
+            var before = run.job.before.map(function (item) {
+              return utils.format("cd %s && ", repo_loc) + item;
+            });
+            console.log(before);
           });
         });
 
