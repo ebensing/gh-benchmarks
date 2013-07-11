@@ -10,6 +10,7 @@ var fs = require('fs');
 
 var config = require('./config/server.js');
 var models = require('./models.js');
+var git = require('./git.js');
 
 // for debugging
 mongoose.set('debug', true);
@@ -69,7 +70,19 @@ mongoose.connect(config.mongoDBuri, function () {
           // if we can't find a matching job, do nothing
           if (!jd) return;
 
-
+          git.clone(jd.repoUrl, function (err, repo_loc) {
+            if (err) {
+              console.log(err);
+              return;
+            }
+            git.checkout_ref(repo_loc, jd.cVal, function (err) {
+              if (err) {
+                console.log(err);
+                return;
+              }
+              console.log("done");
+            });
+          });
         });
 
         res.writeHead(200, "OK", {'Content-Type': 'text/html'});
