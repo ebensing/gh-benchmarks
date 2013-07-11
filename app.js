@@ -45,7 +45,25 @@ mongoose.connect(config.mongoDBuri, function () {
     // this is the queue that will actually process all of the benchmarks
     var runQ = async.queue(function (run, cb) {
       run.populate('job', function (err) {
-        console.log(run.job);
+        if (err) {
+          console.log(err);
+          return;
+        }
+
+        git.clone(run.job.repoUrl, function (err, repo_loc) {
+          if (err) {
+            console.log(err);
+            return;
+          }
+          git.checkout_ref(repo_loc, run.job.cVal, function (err) {
+            if (err) {
+              console.log(err);
+              return;
+            }
+            console.log("done");
+          });
+        });
+
       });
     }, 1);
 
@@ -100,18 +118,3 @@ mongoose.connect(config.mongoDBuri, function () {
 });
 
 
-/*
- *git.clone(jd.repoUrl, function (err, repo_loc) {
- *  if (err) {
- *    console.log(err);
- *    return;
- *  }
- *  git.checkout_ref(repo_loc, jd.cVal, function (err) {
- *    if (err) {
- *      console.log(err);
- *      return;
- *    }
- *    console.log("done");
- *  });
- *});
- */
