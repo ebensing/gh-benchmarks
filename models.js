@@ -10,7 +10,7 @@ var JobDesc = new Schema({
     charts: [{ title : String, type : { type : String }, data : {}}]
 });
 
-JobDesc.virtuals('ref').get(function () {
+JobDesc.virtual('ref').get(function () {
   return 'refs/heads/' + this.branch;
 });
 
