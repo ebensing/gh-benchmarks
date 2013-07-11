@@ -119,7 +119,11 @@ mongoose.connect(config.mongoDBuri, function () {
             });
 
           }, function (repo_loc, callback) {
-            // TODO: generate the results file
+            // switch to the branch where we will save results
+            git.checkout_ref(repo_loc, run.job.saveBranch, function (err) {
+              callback(err, repo_loc);
+            });
+          }, function (repo_loc, callback) {
             callback(null, repo_loc);
           }
         ], function (err, repo_loc) {

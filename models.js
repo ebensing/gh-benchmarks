@@ -8,7 +8,8 @@ var JobDesc = new Schema({
     ref : String,
     tasks: [{ title : String, command : String, fields : {}}],
     charts: [{ title : String, type : { type : String }, data : {}}],
-    before: [String]
+    before: [String],
+    saveBranch : { type : String, default : "gh-pages" }
 });
 
 JobDesc.virtual('branch').get(function () {
