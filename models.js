@@ -5,13 +5,21 @@ var Schema = mongoose.Schema;
 var JobDesc = new Schema({
     title : String,
     repoUrl : String,
-    branch : String,
+    ref : String,
     tasks: [{ title : String, command : String, fields : {}}],
     charts: [{ title : String, type : { type : String }, data : {}}]
 });
 
-JobDesc.virtual('ref').get(function () {
-  return 'refs/heads/' + this.branch;
+JobDesc.virtual('branch').get(function () {
+  return this.ref.replace("refs/heads/","");
+});
+
+JobDesc.virtual('tag').get(function () {
+  return this.ref.replace("refs/tags/","");
+});
+
+JobDesc.virtual('cVal').get(function () {
+  return this.ref.indexOf("refs/tags/") == -1 ? this.branch : this.tag;
 });
 
 var Run = new Schema({
