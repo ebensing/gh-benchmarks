@@ -7,6 +7,7 @@ var async = require('async');
 var http = require('http');
 var qs = require('querystring');
 var fs = require('fs');
+var utils = require('util');
 
 var config = require('./config/server.js');
 var models = require('./models.js');
