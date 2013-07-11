@@ -129,7 +129,7 @@ mongoose.connect(config.mongoDBuri, function () {
             run.error = err;
             run.finished = new Date();
             // save it and go to cleanup
-            run.save(function (err) {
+            return run.save(function (err) {
               cleanup(err, repo_loc, queueCallback);
             });
           }
