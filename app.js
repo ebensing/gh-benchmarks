@@ -134,7 +134,7 @@ mongoose.connect(config.mongoDBuri, function () {
                 case "singleBar":
                   var cond = { job : run.job.id, title : chart.data.taskTitle };
                   var opts = { populate : 'run', sort : '-ts' };
-                  TaskRun.find(cond, opts, function (err, taskruns) {
+                  TaskRun.find(cond, {}, opts, function (err, taskruns) {
                     if (err) return cb(err);
                     var chartData = [];
                     for (var i=0; i < taskruns.length; i++) {
