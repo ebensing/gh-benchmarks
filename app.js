@@ -156,7 +156,7 @@ mongoose.connect(config.mongoDBuri, function () {
             }, function (err) {
               var writeObj = { data : data };
               var saveLoc = utils.format("%s/%s/data.json", repo_loc, run.job.saveLoc);
-              fs.writeFileSync(saveLoc, JSON.stringify(writeObj)));
+              fs.writeFileSync(saveLoc, JSON.stringify(writeObj));
               callback(err, repo_loc);
             });
           }
