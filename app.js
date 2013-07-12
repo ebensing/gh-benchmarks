@@ -85,7 +85,8 @@ mongoose.connect(config.mongoDBuri, function () {
                 var tr = new TaskRun({
                   title : task.title,
                   ts : new Date(),
-                  run : run.id
+                  run : run.id,
+                  job: run.job.id
                 });
 
                 if (err) {

@@ -38,6 +38,7 @@ var TaskRun = new Schema({
     title : String,
     ts : Date,
     run : { type : Schema.Types.ObjectId, ref : 'Run' },
+    job : { type : Schema.Types.OBjectId, ref : 'Job' },
     status : String,
     data : {},
     rawOut : String
