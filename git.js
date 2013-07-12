@@ -33,6 +33,20 @@ function checkout_ref(repo_loc, ref, cb) {
   exec(command, cb);
 }
 
+/**
+ * Pushes a specific branch to a specific remote
+ *
+ * @param {String} repo_loc - location of the repo on disk
+ * @param {String} remote - name of the remote
+ * @param {String} branch - name of the branch
+ * @param {Function} cb - callback
+ */
+
+function push_origin(repo_loc, remote, branch, cb) {
+  var command = utils.format("cd %s && git push %s %s", repo_loc, remote, branch);
+  exec(command, cb);
+}
+
 exports.clone = clone_repo;
 
 exports.checkout_ref = checkout_ref;
