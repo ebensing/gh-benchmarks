@@ -1,37 +1,27 @@
 
 // this file contains all the graphing logic for the benchmark graphs
 
-var charts = [
-  { type : 'bar', title : 'test bar chart' }
-];
-
-var data = [
-  [
-    { x : "12345", y : 2},
-    { x : 2, y : 4},
-    { x : 3, y : 8},
-    { x : 4, y : 16},
-  ]
-];
 
 $("document").ready(function () {
+  $.getJSON('data.json', function (jsonData) {
+    var data = jsonData.data;
+    var charts = jsonData.charts;
+    // loop over the charts and create them
+    for (var i=0; i < charts.length; i++) {
+      var chartDesc = charts[i];
+      var chartData = data[i];
+      var container = "body";
 
-  // loop over the charts and create them
-  for (var i=0; i < charts.length; i++) {
-    var chartDesc = charts[i];
-    var chartData = data[i];
-    var container = "body";
+      $("<div></div>").attr("id", "div"+i).appendTo(container);
+      var selector = "#div%id%".replace("%id%",i.toString());
+      switch(chartDesc.type) {
+        case "singleBar":
+          buildBarGraph(selector, chartDesc, chartData);
+          break;
+      }
 
-    $("<div></div>").attr("id", "div"+i).appendTo(container);
-    var selector = "#div%id%".replace("%id%",i.toString());
-    switch(chartDesc.type) {
-      case "bar":
-        buildBarGraph(selector, chartDesc, chartData);
-        break;
     }
-
-  }
-
+  });
 });
 
 function buildBarGraph(selector, chartDesc, chartData) {
@@ -104,7 +94,7 @@ function buildBarGraph(selector, chartDesc, chartData) {
     .attr("class", "rule")
     .attr("y", function(d,i) { return h - y(d);})
     .attr("x", totalWidth)
-    .attr("dx", -(w/4))
+    .attr("dx", -(w/15))
     .attr("dy", 6)
     .attr("text-anchor", "middle")
     .text(String);
