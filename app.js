@@ -54,7 +54,7 @@ mongoose.connect(config.mongoDBuri, function () {
         async.waterfall([
           function (callback) {
             // clone the repo
-            git.clone(run.job.repoUrl, callback);
+            git.clone(run.job.cloneUrl, callback);
 
           }, function (repo_loc, callback) {
 

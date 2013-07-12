@@ -5,6 +5,7 @@ var Schema = mongoose.Schema;
 var JobDesc = new Schema({
     title : String,
     repoUrl : String,
+    cloneUrl : String,
     ref : String,
     tasks: [{ title : String, command : String, fields : {}}],
     charts: [{ title : String, type : { type : String }, data : {}}],
