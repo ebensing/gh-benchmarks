@@ -129,6 +129,8 @@ mongoose.connect(config.mongoDBuri, function () {
             async.each(run.job.charts, function (chart, cb) {
               switch(chart.type) {
                 case "singleBar":
+                  console.log("barrrrr");
+                  cb();
                   break;
                 case "doubleBar":
                   break;
