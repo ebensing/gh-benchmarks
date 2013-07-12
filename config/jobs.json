@@ -28,7 +28,8 @@
         { "title" : "insert on master", "type" : "singleBar", "data" : { "taskTitle" : "insert", "field" : "dps" }}
       ],
       "before" : ["echo 'hello world!' > test1.txt", "touch test2"],
-      "saveBranch" : "gh-pages"
+      "saveBranch" : "gh-pages",
+      "saveLoc" : "."
     }
   ]
 }
