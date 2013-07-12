@@ -10,7 +10,7 @@
         { "title" : "update", "command" : "node test.js", "fields" :{ "totalDocs" : 1, "dps" : 1, "time" : 1 }}
       ],
       "charts" : [
-        { "title" : "insert", "type" : "bar", "data" : { "bar1" : { "taskTitle" : "insert", "dataField" : "dps"}, "x" : "time", "y" : "dps" }}
+        { "title" : "insert", "type" : "singleBar", "data" : { "taskTitle" : "insert", "field" : "dps" }}
       ],
       "before" : ["echo 'hello world!' > test1.txt", "touch test2"],
       "saveBranch" : "gh-pages"
@@ -25,7 +25,7 @@
         { "title" : "update", "command" : "node test.js", "fields" :{ "totalDocs" : 1, "dps" : 1, "time" : 1 }}
       ],
       "charts" : [
-        { "title" : "insert", "type" : "bar", "data" : { "bar1" : { "taskTitle" : "insert", "dataField" : "dps"}, "x" : "time", "y" : "dps" }}
+        { "title" : "insert on master", "type" : "singleBar", "data" : { "taskTitle" : "insert", "field" : "dps" }}
       ],
       "before" : ["echo 'hello world!' > test1.txt", "touch test2"],
       "saveBranch" : "gh-pages"

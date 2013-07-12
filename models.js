@@ -35,6 +35,7 @@ var Run = new Schema({
 });
 
 var TaskRun = new Schema({
+    title : String,
     ts : Date,
     run : { type : Schema.Types.ObjectId, ref : 'Run' },
     status : String,

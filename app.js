@@ -83,6 +83,7 @@ mongoose.connect(config.mongoDBuri, function () {
               var command = utils.format("cd %s && ", repo_loc) + task.command;
               exec(command, function (err, stdout, stderr) {
                 var tr = new TaskRun({
+                  title : task.title,
                   ts : new Date(),
                   run : run.id
                 });
@@ -124,7 +125,19 @@ mongoose.connect(config.mongoDBuri, function () {
               callback(err, repo_loc);
             });
           }, function (repo_loc, callback) {
-            callback(null, repo_loc);
+            // time to build the data for the charts
+            async.each(run.job.charts, function (chart, cb) {
+              switch(chart.type) {
+                case "singleBar":
+                  break;
+                case "doubleBar":
+                  break;
+                case "line":
+                  break;
+              }
+            }, function (err) {
+              callback(err, repo_loc);
+            });
           }
         ], function (err, repo_loc) {
           if (err) {
