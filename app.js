@@ -127,11 +127,26 @@ mongoose.connect(config.mongoDBuri, function () {
             });
           }, function (repo_loc, callback) {
             // time to build the data for the charts
-            async.each(run.job.charts, function (chart, cb) {
+
+            var data = [];
+            async.eachSeries(run.job.charts, function (chart, cb) {
               switch(chart.type) {
                 case "singleBar":
-                  console.log("barrrrr");
-                  cb();
+                  var cond = { job : run.job.id, title : chart.data.taskTitle };
+                  var opts = { populate : 'run', sort : '-ts' };
+                  TaskRun.find(cond, opts, function (err, taskruns) {
+                    if (err) return cb(err);
+                    var chartData = [];
+                    for (var i=0; i < taskruns.length; i++) {
+                      var tr = taskruns[i];
+                      var o = {};
+                      o.x = tr.run.lastCommit.substr(tr.run.lastCommit.length - 6);
+                      o.y = tr.data[chart.data.field];
+                      chartData.push(o);
+                    }
+                    data.push(chartData);
+                    cb();
+                  });
                   break;
                 case "doubleBar":
                   break;
@@ -139,6 +154,7 @@ mongoose.connect(config.mongoDBuri, function () {
                   break;
               }
             }, function (err) {
+              console.log(data);
               callback(err, repo_loc);
             });
           }
