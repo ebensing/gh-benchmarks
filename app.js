@@ -4,6 +4,8 @@
 
 var mongoose = require('mongoose');
 var async = require('async');
+var jade = require('jade');
+
 var http = require('http');
 var qs = require('querystring');
 var fs = require('fs');
@@ -158,6 +160,24 @@ mongoose.connect(config.mongoDBuri, function () {
               var saveLoc = utils.format("%s/%s/data.json", repo_loc, run.job.saveLoc);
               fs.writeFileSync(saveLoc, JSON.stringify(writeObj));
               callback(err, repo_loc);
+            });
+          }, function (repo_loc, callback) {
+            // generate the webpage
+
+            var locals = {};
+            locals.projectName = run.job.projectName;
+            locals.title = run.job.title;
+            locals.charts = run.job.charts;
+
+            fs.readFile('statics/index.jade', 'utf-8', function (err, data) {
+              if (err) return callback(err);
+
+              var fn = jade.compile(data);
+              var html = fn(locals);
+              var saveLoc = utils.format("%s/%s/index.html", repo_loc, run.job.saveLoc);
+              fs.writeFile(saveLoc, html, function (err) {
+                callback(err, repo_loc);
+              });
             });
           }
         ], function (err, repo_loc) {

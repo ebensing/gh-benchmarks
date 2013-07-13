@@ -2,6 +2,7 @@
   "jobs" : [
     {
       "title" : "Master Benchmarks",
+      "projectName" : "Mongoose",
       "repoUrl" : "https://github.com/LearnBoost/mongoose",
       "cloneUrl" : "git@github.com:LearnBoost/mongoose.git",
       "ref" : "refs/heads/master",
@@ -17,6 +18,7 @@
     },
     {
       "title" : "Master Benchmarks dotfiles",
+      "projectName" : "dotfiles",
       "repoUrl" : "https://github.com/ebensing/dotfiles",
       "cloneUrl" : "git@github.com:ebensing/dotfiles.git",
       "ref" : "refs/heads/master",

@@ -10,7 +10,7 @@ $("document").ready(function () {
     for (var i=0; i < charts.length; i++) {
       var chartDesc = charts[i];
       var chartData = data[i];
-      var container = "body";
+      var container = "div.hero-unit";
 
       $("<div></div>").attr("id", "div"+i).appendTo(container);
       var selector = "#div%id%".replace("%id%",i.toString());

@@ -11,7 +11,8 @@ var JobDesc = new Schema({
     charts: [{ title : String, type : { type : String }, data : {}}],
     before: [String],
     saveBranch : { type : String, default : "gh-pages" },
-    saveLoc : { type : String, default : "benchmarks" }
+    saveLoc : { type : String, default : "benchmarks" },
+    projectName : String
 });
 
 JobDesc.virtual('branch').get(function () {
