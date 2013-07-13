@@ -169,7 +169,7 @@ mongoose.connect(config.mongoDBuri, function () {
             locals.title = run.job.title;
             locals.charts = run.job.charts;
 
-            fs.readFile('statics/index.jade', 'utf-8', function (err, data) {
+            fs.readFile('./statics/index.jade', 'utf-8', function (err, data) {
               if (err) return callback(err);
 
               var fn = jade.compile(data);
