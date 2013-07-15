@@ -185,6 +185,19 @@ mongoose.connect(config.mongoDBuri, function () {
             git.add_files(repo_loc, ["index.html", "data.json"], function (err) {
               callback(err, repo_loc);
             });
+          }, function (repo_loc, callback) {
+            // commit the files
+
+            var msg = utils.format("Benchmarks run and new results generated for %s", run.lastCommit);
+            git.commit_repo?(repo_loc, msg, function (err) {
+              callback(err, repo_loc);
+            });
+          }, function (repo_loc, callback) {
+            // push the files back to Github
+
+            git.push_repo(repo_loc, "origin", run.job.saveBranch, function (err) {
+              callback(err, repo_loc);
+            });
           }
         ], function (err, repo_loc) {
           if (err) {

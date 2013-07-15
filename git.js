@@ -42,7 +42,7 @@ function checkout_ref(repo_loc, ref, cb) {
  * @param {Function} cb - callback
  */
 
-function push_origin(repo_loc, remote, branch, cb) {
+function push_repo(repo_loc, remote, branch, cb) {
   var command = utils.format("cd %s && git push %s %s", repo_loc, remote, branch);
   exec(command, cb);
 }
@@ -56,6 +56,8 @@ function push_origin(repo_loc, remote, branch, cb) {
  */
 
 function add_files(repo_loc, fileNames, cb) {
+  // in case people decide to only pass a single file, let's not blow up in
+  // their face
   if ('string' == typeof fileNames) {
     filesNames = [fileNames];
   }
@@ -71,9 +73,25 @@ function add_files(repo_loc, fileNames, cb) {
   }
 }
 
+/**
+ * Commits a repo
+ *
+ * @param {String} repo_loc - location of the repository
+ * @param {String} commitMsg - commit message to go with the commit
+ * @param {Function} cb - callback
+ */
+
+function commit_repo(repo_loc, commitMsg, cb) {
+  var command = utils.format("cd %s && git commit -m '%s'", repo_loc, commitMsg);
+  exec(command, cb);
+}
+
 exports.clone = clone_repo;
 
 exports.checkout_ref = checkout_ref;
 
 exports.add_files = add_files;
 
+exports.commit_repo = commit_repo;
+
+exports.push_repo = push_repo;
