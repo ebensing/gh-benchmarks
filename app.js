@@ -189,7 +189,7 @@ mongoose.connect(config.mongoDBuri, function () {
             // commit the files
 
             var msg = utils.format("Benchmarks run and new results generated for %s", run.lastCommit);
-            git.commit_repo?(repo_loc, msg, function (err) {
+            git.commit_repo(repo_loc, msg, function (err) {
               callback(err, repo_loc);
             });
           }, function (repo_loc, callback) {
