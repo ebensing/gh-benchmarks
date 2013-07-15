@@ -47,7 +47,33 @@ function push_origin(repo_loc, remote, branch, cb) {
   exec(command, cb);
 }
 
+/**
+ * Stage a set of files for commit
+ *
+ * @param {String} repo_loc - location of the repo on disk
+ * @param {Array} fileNames - list of file names to stage
+ * @param {Function} cb - callback
+ */
+
+function add_files(repo_loc, fileNames, cb) {
+  if ('string' == typeof fileNames) {
+    filesNames = [fileNames];
+  }
+  var count = fileNames.length;
+  var l = fileNames.length;
+  for (var i=0; i < l; i++) {
+    var command = utils.format("cd %s && git add %s", repo_loc, fileNames[i]);
+    exec(command, function (err) {
+      if (err) return cb(err);
+
+      --count || cb();
+    });
+  }
+}
+
 exports.clone = clone_repo;
 
 exports.checkout_ref = checkout_ref;
+
+exports.add_files = add_files;
 

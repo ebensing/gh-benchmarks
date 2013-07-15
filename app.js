@@ -179,6 +179,12 @@ mongoose.connect(config.mongoDBuri, function () {
                 callback(err, repo_loc);
               });
             });
+          }, function (repo_loc, callback) {
+            // stage the files for commit
+
+            git.add_files(repo_loc, ["index.html", "data.json"], function (err) {
+              callback(err, repo_loc);
+            });
           }
         ], function (err, repo_loc) {
           if (err) {
