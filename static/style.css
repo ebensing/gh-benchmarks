@@ -6,3 +6,7 @@
 .chart {
   font-size: 12px;
 }
+
+.gContainer {
+  overflow-x: auto;
+}
