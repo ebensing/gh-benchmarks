@@ -8,7 +8,7 @@ var JobDesc = new Schema({
     cloneUrl : String,
     ref : String,
     tasks: [{ title : String, command : String }],
-    charts: [{ title : String, type : { type : String }, data : {}}],
+    charts: [{ title : String, type : { type : String }, config : {}}],
     before: [String],
     after: [String],
     saveBranch : { type : String, default : "gh-pages" },
