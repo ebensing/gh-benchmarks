@@ -276,6 +276,7 @@ mongoose.connect(config.mongoDBuri, function () {
 
 function cleanup(err, repo_loc, callback) {
   fs.rmdir(repo_loc, function (err) {
+    if (err) console.log(err);
     console.log("done");
 
     // this is the callback on the queue
