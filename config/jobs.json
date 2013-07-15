@@ -14,7 +14,7 @@
         { "title" : "insert", "type" : "singleBar", "data" : { "taskTitle" : "insert", "field" : "dps" }}
       ],
       "before" : ["echo 'hello world!' > test1.txt", "touch test2"],
-      "after" : ["after.js"],
+      "after" : ["node after.js"],
       "saveBranch" : "gh-pages"
     },
     {
@@ -31,7 +31,7 @@
         { "title" : "insert on master", "type" : "singleBar", "data" : { "taskTitle" : "insert", "field" : "dps" }}
       ],
       "before" : ["echo 'hello world!' > test1.txt", "touch test2"],
-      "after" : ["after.js"],
+      "after" : ["node after.js"],
       "saveBranch" : "gh-pages",
       "saveLoc" : "."
     }

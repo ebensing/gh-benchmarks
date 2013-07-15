@@ -147,7 +147,7 @@ mongoose.connect(config.mongoDBuri, function () {
             git.checkout_ref(repo_loc, run.job.saveBranch, function (err) {
               callback(err, repo_loc);
             });
-          }, function (repo_loc, callback) {
+          }/*, function (repo_loc, callback) {
             // time to build the data for the charts
 
             var data = [];
@@ -224,7 +224,7 @@ mongoose.connect(config.mongoDBuri, function () {
             git.push_repo(repo_loc, "origin", run.job.saveBranch, function (err) {
               callback(err, repo_loc);
             });
-          }
+          }*/
         ], function (err, repo_loc) {
           if (err) {
             console.log(err);
