@@ -163,7 +163,7 @@ mongoose.connect(config.mongoDBuri, function () {
                     for (var i=0; i < l; i++) {
                       var r = runs[i];
                       var o = {};
-                      o.x = r.lastCommit.substr(tr.run.lastCommit.length - 6);
+                      o.x = r.lastCommit.substr(r.lastCommit.length - 6);
                       o.y = r.output[chart.taskTitle][chart.data.field];
                       chartData.push(o);
                     }
