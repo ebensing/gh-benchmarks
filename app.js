@@ -147,23 +147,24 @@ mongoose.connect(config.mongoDBuri, function () {
             git.checkout_ref(repo_loc, run.job.saveBranch, function (err) {
               callback(err, repo_loc);
             });
-          }/*, function (repo_loc, callback) {
+          }, function (repo_loc, callback) {
             // time to build the data for the charts
 
             var data = [];
             async.eachSeries(run.job.charts, function (chart, cb) {
               switch(chart.type) {
                 case "singleBar":
-                  var cond = { job : run.job.id, title : chart.data.taskTitle };
-                  var opts = { populate : 'run', sort : '-ts' };
-                  TaskRun.find(cond, {}, opts, function (err, taskruns) {
+                  var cond = { job : run.job.id };
+                  var opts = { sort : '-ts' };
+                  Run.find(cond, {}, opts, function (err, runs) {
                     if (err) return cb(err);
                     var chartData = [];
-                    for (var i=0; i < taskruns.length; i++) {
-                      var tr = taskruns[i];
+                    var l = runs.length;
+                    for (var i=0; i < l; i++) {
+                      var r = runs[i];
                       var o = {};
-                      o.x = tr.run.lastCommit.substr(tr.run.lastCommit.length - 6);
-                      o.y = tr.data[chart.data.field];
+                      o.x = r.lastCommit.substr(tr.run.lastCommit.length - 6);
+                      o.y = r.output[chart.taskTitle][chart.data.field];
                       chartData.push(o);
                     }
                     data.push(chartData);
@@ -224,7 +225,7 @@ mongoose.connect(config.mongoDBuri, function () {
             git.push_repo(repo_loc, "origin", run.job.saveBranch, function (err) {
               callback(err, repo_loc);
             });
-          }*/
+          }
         ], function (err, repo_loc) {
           if (err) {
             console.log(err);
