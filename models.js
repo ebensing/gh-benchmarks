@@ -7,9 +7,10 @@ var JobDesc = new Schema({
     repoUrl : String,
     cloneUrl : String,
     ref : String,
-    tasks: [{ title : String, command : String, fields : {}}],
+    tasks: [{ title : String, command : String }],
     charts: [{ title : String, type : { type : String }, data : {}}],
     before: [String],
+    after: [String],
     saveBranch : { type : String, default : "gh-pages" },
     saveLoc : { type : String, default : "benchmarks" },
     projectName : String
@@ -33,7 +34,8 @@ var Run = new Schema({
     status : String,
     lastCommit : String,
     finished : Date,
-    error : {}
+    error : {},
+    output : {}
 });
 
 var TaskRun = new Schema({

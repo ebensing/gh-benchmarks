@@ -101,14 +101,9 @@ mongoose.connect(config.mongoDBuri, function () {
 
                 tr.status = "success";
                 tr.rawOut = stdout.toString();
-                tr.data = {};
                 // parse the returned data and save it
-                var outJson = JSON.parse(stdout.toString());
-                var keys = Object.keys(task.fields);
-                for (var i=0; i < keys.length; i++) {
-                  var k = keys[i];
-                  tr.data[k] = outJson[k];
-                }
+                tr.data = JSON.parse(stdout.toString());
+
                 tr.save(cb);
               });
             }, function (err) {
@@ -122,7 +117,31 @@ mongoose.connect(config.mongoDBuri, function () {
                 callback(err, repo_loc);
               });
             });
+          }, function (repo_loc, callback) {
+            // run and post processing steps on the data
+            TaskRun.find({ run : run.id }, function (err, taskRuns) {
+              var allData = {};
+              for (var i=0; i < taskRuns.length; i++) {
+                var tr = taskRuns[i];
+                allData[tr.title] = tr.data;
+              }
+              async.eachSeries(run.job.after, function (item, acb) {
+                var arg = JSON.stringify(allData);
+                var command = utils.format("cd %s && %s '%s'", repo_loc, item, arg);
+                exec(command, function (err, stdout, stderr) {
+                  if (err) return acb(err);
+                  allData = JSON.parse(stdout.toString());
+                  acb();
+                });
+              }, function (err) {
+                if (err) return callback(err);
 
+                run.output = allData;
+                run.save(function (err) {
+                  callback(err, repo_loc);
+                });
+              });
+            });
           }, function (repo_loc, callback) {
             // switch to the branch where we will save results
             git.checkout_ref(repo_loc, run.job.saveBranch, function (err) {
