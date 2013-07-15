@@ -5,7 +5,6 @@
 var mongoose = require('mongoose');
 var async = require('async');
 var jade = require('jade');
-var ncp = require('ncp').ncp;
 
 var http = require('http');
 var qs = require('querystring');
@@ -19,6 +18,9 @@ var git = require('./git.js');
 
 // for debugging
 mongoose.set('debug', true);
+
+// the module that will do the graphing
+var grapher = require('gh-benchmarks-grapher');
 
 mongoose.connect(config.mongoDBuri, function () {
   var JobDesc = mongoose.model('JobDesc', models.JobDesc);
@@ -148,67 +150,16 @@ mongoose.connect(config.mongoDBuri, function () {
               callback(err, repo_loc);
             });
           }, function (repo_loc, callback) {
-            // time to build the data for the charts
-
-            var data = [];
-            async.eachSeries(run.job.charts, function (chart, cb) {
-              switch(chart.type) {
-                case "singleBar":
-                  var cond = { job : run.job.id };
-                  var opts = { sort : '-ts' };
-                  Run.find(cond, {}, opts, function (err, runs) {
-                    if (err) return cb(err);
-                    var chartData = [];
-                    var l = runs.length;
-                    for (var i=0; i < l; i++) {
-                      var r = runs[i];
-                      var o = {};
-                      o.x = r.lastCommit.substr(r.lastCommit.length - 6);
-                      o.y = r.output[chart.config.taskTitle][chart.config.field];
-                      chartData.push(o);
-                    }
-                    data.push(chartData);
-                    cb();
-                  });
-                  break;
-                case "doubleBar":
-                  break;
-                case "line":
-                  break;
-              }
-            }, function (err) {
-              var writeObj = { data : data, charts : run.job.charts };
-              var saveLoc = utils.format("%s/%s/data.json", repo_loc, run.job.saveLoc);
-              fs.writeFileSync(saveLoc, JSON.stringify(writeObj));
-              callback(err, repo_loc);
-            });
-          }, function (repo_loc, callback) {
-            // generate the webpage
-
-            var locals = {};
-            locals.projectName = run.job.projectName;
-            locals.title = run.job.title;
-            locals.charts = run.job.charts;
-
-            fs.readFile('static/index.jade', 'utf-8', function (err, data) {
+            // get all of the data, the pass it into the grapher
+            var cond = { job : run.job.id };
+            var opts = { sort : '-ts' };
+            Run.find(cond, {}, opts, function (err, runs) {
               if (err) return callback(err);
 
-              var fn = jade.compile(data);
-              var html = fn(locals);
-              var saveLoc = utils.format("%s/%s/index.html", repo_loc, run.job.saveLoc);
-              fs.writeFile(saveLoc, html, function (err) {
-                callback(err, repo_loc);
-              });
+              grapher.buildGraphs(runs, repo_loc, run.job.saveLoc, run.job.charts, callback);
             });
-          }, function (repo_loc, callback) {
-            // copy the dependencies into the repo
-            var saveDir = utils.format("%s/%s/", repo_loc, run.job.saveLoc);
-            ncp("static", saveDir, { clobber : true }, function (err) {
-              callback(err, repo_loc);
-            });
-          }, function (repo_loc, callback) {
+          }, function (repo_loc, files, callback) {
             // stage the files for commit
-            var files = ["index.html", "data.json", "graphs.js", "style.css", "bootstrap/"];
             git.add_files(repo_loc, files, function (err) {
               callback(err, repo_loc);
             });
