@@ -183,10 +183,10 @@ mongoose.connect(config.mongoDBuri, function () {
           }, function (repo_loc, callback) {
             // copy the dependencies into the repo
             var saveDir = utils.format("%s/%s/", repo_loc, run.job.saveLoc);
-            copyFile("static/graph.js", saveDir + "graph.js", function (err) {
-              if (err) return cb(err);
+            copyFile("static/graphs.js", saveDir + "graphs.js", function (err) {
+              if (err) return callback(err);
               copyFile("static/style.css", saveDir + "style.css", function (err) {
-                if (err) return cb(err);
+                if (err) return callback(err);
 
                 ncp("static/bootstrap", saveDir, { clobber : true }, function (err) {
                   callback(err, repo_loc);
@@ -195,7 +195,7 @@ mongoose.connect(config.mongoDBuri, function () {
             });
           }, function (repo_loc, callback) {
             // stage the files for commit
-            var files = ["index.html", "data.json", "graph.js", "style.css", "bootstrap/"];
+            var files = ["index.html", "data.json", "graphs.js", "style.css", "bootstrap/"];
             git.add_files(repo_loc, files, function (err) {
               callback(err, repo_loc);
             });
