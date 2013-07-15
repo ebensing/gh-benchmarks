@@ -183,20 +183,9 @@ mongoose.connect(config.mongoDBuri, function () {
           }, function (repo_loc, callback) {
             // copy the dependencies into the repo
             var saveDir = utils.format("%s/%s/", repo_loc, run.job.saveLoc);
-            /*
-             *copyFile("static/graphs.js", saveDir + "graphs.js", function (err) {
-             *  if (err) return callback(err);
-             *  copyFile("static/style.css", saveDir + "style.css", function (err) {
-             *    if (err) return callback(err);
-             */
-
-                ncp("static", saveDir, { clobber : true }, function (err) {
-                  callback(err, repo_loc);
-                });
-            /*
-             *  });
-             *});
-             */
+            ncp("static", saveDir, { clobber : true }, function (err) {
+              callback(err, repo_loc);
+            });
           }, function (repo_loc, callback) {
             // stage the files for commit
             var files = ["index.html", "data.json", "graphs.js", "style.css", "bootstrap/"];
@@ -290,27 +279,3 @@ function cleanup(err, repo_loc, callback) {
   callback();
 }
 
-// helper function for copying files
-function copyFile(source, target, cb) {
-  var cbCalled = false;
-
-  var rd = fs.createReadStream(source);
-  rd.on("error", function(err) {
-    done(err);
-  });
-  var wr = fs.createWriteStream(target);
-  wr.on("error", function(err) {
-    done(err);
-  });
-  wr.on("close", function(ex) {
-    done();
-  });
-  rd.pipe(wr);
-
-  function done(err) {
-    if (!cbCalled) {
-      cb(err);
-      cbCalled = true;
-    }
-  }
-}
