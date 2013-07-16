@@ -294,7 +294,7 @@ mongoose.connect(config.mongoDBuri, function () {
 });
 
 function cleanup(err, repo_loc, callback) {
-  var command = utils.format("rm -rf %s", repo_loc);
+  var command = utils.format("rm -rf %s repos/.tmp", repo_loc);
 
   exec(command, function (err) {
     if (err) console.log(err);
