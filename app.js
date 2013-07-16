@@ -4,7 +4,6 @@
 
 var mongoose = require('mongoose');
 var async = require('async');
-var jade = require('jade');
 
 var http = require('http');
 var qs = require('querystring');
@@ -156,7 +155,7 @@ mongoose.connect(config.mongoDBuri, function () {
             Run.find(cond, {}, opts, function (err, runs) {
               if (err) return callback(err);
 
-              grapher.buildGraphs(runs, run.job, repo_loc, run.job.saveLoc, callback);
+              grapher.buildGraphs(runs, run.job, repo_loc, callback);
             });
           }, function (repo_loc, files, callback) {
             // stage the files for commit
