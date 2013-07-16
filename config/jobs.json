@@ -28,7 +28,7 @@
         { "title" : "update", "command" : "node test.js" }
       ],
       "charts" : [
-        { "title" : "insert on master", "type" : "singleBar", "config" : { "taskTitle" : "insert", "field" : "dps" },
+        { "title" : "insert on master", "type" : "singleBar", "config" : { "taskTitle" : "insert", "field" : "dps" } },
           { "title" : "multiBar graph", "type" : "multiBar", 
             "config" : { "values" : [
               { "taskTitle" : "insert", "field" : "dps" },
