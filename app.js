@@ -19,6 +19,7 @@ var git = require('./git.js');
 mongoose.set('debug', true);
 
 // the module that will do the graphing
+// this is where you change it if you want to use your own
 var grapher = require('gh-benchmarks-grapher');
 
 mongoose.connect(config.mongoDBuri, function () {
@@ -154,7 +155,8 @@ mongoose.connect(config.mongoDBuri, function () {
             var opts = { sort : '-ts' };
             Run.find(cond, {}, opts, function (err, runs) {
               if (err) return callback(err);
-
+              // callback signature is (err, repo_loc, files) where files is an
+              // array of all the files that have been changed/added
               grapher.buildGraphs(runs, run.job, repo_loc, callback);
             });
           }, function (repo_loc, files, callback) {
