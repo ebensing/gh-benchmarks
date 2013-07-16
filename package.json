@@ -8,9 +8,7 @@
   },
   "dependencies" : {
     "mongoose" : "*",
-    "async" : "*",
-    "jade" : "*",
-    "ncp" : "*"
+    "async" : "*"
   },
   "repository": {
     "type": "git",
