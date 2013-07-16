@@ -70,7 +70,7 @@ mongoose.connect(config.mongoDBuri, function () {
 
             // copy all the necessary files
             // checkout the correct branch for each file & exec command
-            async.each(run.job.preservedFiles, function (item, pcb) {
+            async.eachSeries(run.job.preservedFiles, function (item, pcb) {
               var dir = utils.format("repos/.tmp/%s", path.dirname(item.name));
               mkdirp(dir, function(err) {
                 if (err) return pcb(err);
@@ -181,6 +181,16 @@ mongoose.connect(config.mongoDBuri, function () {
                 });
               });
             });
+          } function (repo_loc, callback) {
+            // need to remove the preserved files so that we can switch branches
+            var files = run.job.preservedFiles.map(function (item) {
+              return utils.format("%s/%s", repo_loc, item.name);
+            });
+
+            async.each(files, fs.unlink, function (err) {
+              callback(err, repo_loc);
+            });
+
           }, function (repo_loc, callback) {
             // switch to the branch where we will save results
             git.checkout_ref(repo_loc, run.job.saveBranch, function (err) {
