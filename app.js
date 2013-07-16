@@ -156,7 +156,7 @@ mongoose.connect(config.mongoDBuri, function () {
             Run.find(cond, {}, opts, function (err, runs) {
               if (err) return callback(err);
 
-              grapher.buildGraphs(runs, repo_loc, run.job.saveLoc, run.job.charts, callback);
+              grapher.buildGraphs(runs, run.job, repo_loc, run.job.saveLoc, callback);
             });
           }, function (repo_loc, files, callback) {
             // stage the files for commit
