@@ -42,6 +42,32 @@
       "preservedFiles" : [
         { "branch" : "gh-pages", "name" : "data.json" }
       ]
+    },
+    {
+      "title" : "Master Benchmarks dotfile taggggg",
+      "projectName" : "dotfiles",
+      "repoUrl" : "https://github.com/ebensing/dotfiles",
+      "cloneUrl" : "git@github.com:ebensing/dotfiles.git",
+      "ref" : "refs/tags/test-tag",
+      "tasks" : [
+        { "title" : "insert", "command" : "node test.js" },
+        { "title" : "update", "command" : "node test.js" }
+      ],
+      "charts" : [
+        { "title" : "insert on master", "type" : "singleBar", "config" : { "taskTitle" : "insert", "field" : "dps" } },
+          { "title" : "multiBar graph", "type" : "multiBar", 
+            "config" : { "values" : [
+              { "taskTitle" : "insert", "field" : "dps" },
+              { "taskTitle" : "update", "field" : "dps" }
+              ] } }
+      ],
+      "before" : ["echo 'hello world!' > test1.txt", "touch test2"],
+      "after" : ["node after.js"],
+      "saveBranch" : "gh-pages",
+      "saveLoc" : ".",
+      "preservedFiles" : [
+        { "branch" : "gh-pages", "name" : "data.json" }
+      ]
     }
   ]
 }

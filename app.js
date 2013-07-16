@@ -7,6 +7,7 @@ var async = require('async');
 var mkdirp = require('mkdirp');
 
 var http = require('http');
+var https = require('https');
 var qs = require('querystring');
 var fs = require('fs');
 var utils = require('util');
@@ -242,6 +243,63 @@ mongoose.connect(config.mongoDBuri, function () {
         });
       });
     }, 1);
+
+    // check for the tags and make sure they've all been run
+    JobDesc.find({ ref : /\/tags\// }, function (err, jobs) {
+      if (err) return console.log(err);
+      Run.find({ $or : [ { status : "success"}, { status : "error" }]}).distinct('job', function (err, ids) {
+        if (err) return console.log(err);
+
+        var l = jobs.length;
+        for (var i=0; i < l; i++) {
+          var job = jobs[i];
+
+          if (ids.indexOf(job.id) == -1) {
+            var run = new Run({
+              ts : new Date(),
+              job : job.id,
+              status : 'pending',
+            });
+
+            // time to get the head commit
+            var repo = job.repoUrl.replace("https://github.com/","");
+            if (repo[repo.length -1] == "/") repo = repo.substr(0, repo.length - 1);
+            var options = {
+              host : "api.github.com",
+              path : utils.format("/repos/%s/git/%s", repo, job.ref),
+              method : "GET"
+            };
+
+            var req = https.request(options, function (res) {
+              var data = "";
+              res.on('data', function (d) {
+                data += d.toString();
+              });
+
+              res.on('end', function () {
+                var obj = JSON.parse(data);
+                // if it has a message property, then no such ref exists
+                if (obj.message) {
+                  run.error = new Error("ref does not exist");
+                  run.status = "error";
+                  run.finished = new Date();
+                  return run.save(function (err) {
+                    if (err) return console.log(err);
+                  });
+                }
+
+                run.lastCommit = obj.object.sha;
+                run.save(function (err) {
+                  if (err) return console.log(err);
+                  runQ.push(run);
+                });
+              });
+            });
+            req.end();
+          }
+        }
+      });
+    });
 
     // start the listening server
     http.createServer(function (req, res) {
