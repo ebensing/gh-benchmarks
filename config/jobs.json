@@ -28,7 +28,13 @@
         { "title" : "update", "command" : "node test.js" }
       ],
       "charts" : [
-        { "title" : "insert on master", "type" : "singleBar", "config" : { "taskTitle" : "insert", "field" : "dps" }}
+        { "title" : "insert on master", "type" : "singleBar", "config" : { "taskTitle" : "insert", "field" : "dps" },
+          { "title" : "multiBar graph", "type" : "multiBar", 
+            "config" : { "values" : [
+              { "taskTitle" : "insert", "field" : "dps" },
+              { "taskTitle" : "update", "field" : "dps" }
+              ] } }
+        }
       ],
       "before" : ["echo 'hello world!' > test1.txt", "touch test2"],
       "after" : ["node after.js"],
