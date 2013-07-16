@@ -38,7 +38,10 @@
       "before" : ["echo 'hello world!' > test1.txt", "touch test2"],
       "after" : ["node after.js"],
       "saveBranch" : "gh-pages",
-      "saveLoc" : "."
+      "saveLoc" : ".",
+      "preservedFiles" : [
+        { "branch" : "gh-pages", "name" : "data.json" }
+      ]
     }
   ]
 }

@@ -4,12 +4,14 @@
 
 var mongoose = require('mongoose');
 var async = require('async');
+var mkdirp = require('mkdirp');
 
 var http = require('http');
 var qs = require('querystring');
 var fs = require('fs');
 var utils = require('util');
 var exec = require('child_process').exec;
+var path = require('path');
 
 var config = require('./config/server.js');
 var models = require('./models.js');
@@ -62,12 +64,47 @@ mongoose.connect(config.mongoDBuri, function () {
             git.clone(run.job.cloneUrl, callback);
 
           }, function (repo_loc, callback) {
+            // handle the preserved files - these are files from a different
+            // branch that you want available in your main branch. useful for
+            // running benchmarks on old tags, ect
+
+            // copy all the necessary files
+            // checkout the correct branch for each file & exec command
+            async.each(run.job.preservedFiles, function (item, pcb) {
+              var dir = utils.format("repos/.tmp/%s", path.dirname(item.name));
+              mkdirp(dir, function(err) {
+                if (err) return pcb(err);
+                var command = utils.format("cp %s/%s repos/.tmp", repo_loc, item.name);
+                git.checkout_ref(repo_loc, item.branch, function (err) {
+                  if (err) return pcb(err);
+                  exec(command, pcb);
+                });
+              });
+            }, function (err) {
+              callback(err, repo_loc);
+            });
+          }, function (repo_loc, callback) {
 
             // switch to the correct ref
             git.checkout_ref(repo_loc, run.job.cVal, function (err) {
               callback(err, repo_loc);
             });
 
+          }, function (repo_loc, callback) {
+            // copy in all of the preservedFiles
+
+            async.each(run.job.preservedFiles, function (item, pcb) {
+              var dir = utils.format("%s/%s", repo_loc, path.dirname(item.name));
+
+              mkdirp(dir, function (err) {
+                if (err) return pcb(err);
+
+                var command = utils.format("cp repos/.tmp/%s %s/%s", item.name, repo_loc, item.name);
+                exec(command, pcb);
+              });
+            }, function (err) {
+              callback(err, repo_loc);
+            });
           }, function (repo_loc, callback) {
 
             // run the setup work
@@ -257,4 +294,3 @@ function cleanup(err, repo_loc, callback) {
     callback();
   });
 }
-

@@ -13,7 +13,8 @@ var JobDesc = new Schema({
     after: [String],
     saveBranch : { type : String, default : "gh-pages" },
     saveLoc : { type : String, default : "benchmarks" },
-    projectName : String
+    projectName : String,
+    preservedFiles : [{ branch : String, name : String }]
 });
 
 JobDesc.virtual('branch').get(function () {
