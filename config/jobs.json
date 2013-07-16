@@ -34,7 +34,6 @@
               { "taskTitle" : "insert", "field" : "dps" },
               { "taskTitle" : "update", "field" : "dps" }
               ] } }
-        }
       ],
       "before" : ["echo 'hello world!' > test1.txt", "touch test2"],
       "after" : ["node after.js"],
