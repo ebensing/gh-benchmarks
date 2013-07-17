@@ -345,7 +345,7 @@ mongoose.connect(config.mongoDBuri, function () {
                 run.lastCommit = obj.object.sha;
                 run.save(function (err) {
                   if (err) return console.log(err);
-                  runQ.push(run);
+                  travisQ.push(run);
                 });
               });
             });
