@@ -203,9 +203,11 @@ mongoose.connect(config.mongoDBuri, function () {
             var opts = { sort : '-ts' };
             Run.find(cond, {}, opts, function (err, runs) {
               if (err) return callback(err);
-              // callback signature is (err, repo_loc, files) where files is an
+              // callback signature is (err, files) where files is an
               // array of all the files that have been changed/added
-              grapher.buildGraphs(runs, run.job, repo_loc, callback);
+              grapher.buildGraphs(runs, run.job, repo_loc, function(err, files) {
+                callback(err, repo_loc, files);
+              });
             });
           }, function (repo_loc, files, callback) {
             // stage the files for commit
