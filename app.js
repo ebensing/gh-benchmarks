@@ -345,7 +345,7 @@ mongoose.connect(config.mongoDBuri, function () {
                 run.lastCommit = obj.object.sha;
                 run.save(function (err) {
                   if (err) return console.log(err);
-                  travisQ.push(run);
+                  runQ.push(run);
                 });
               });
             });
@@ -392,7 +392,7 @@ mongoose.connect(config.mongoDBuri, function () {
 
           // save the new task and put it on the queue
           run.save(function (err) {
-            runQ.push(run);
+            travisQ.push(run);
           });
         });
 
