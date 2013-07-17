@@ -244,6 +244,60 @@ mongoose.connect(config.mongoDBuri, function () {
       });
     }, 1);
 
+    // this is the queue that checks to see if a commit has passed on travis
+    // yet
+    var travisQ = async.queue(function (run, cb) {
+      run.populate('job', function (err) {
+        if (err) {
+          run.error = err;
+          run.status = "error";
+          return run.save(cb);
+        }
+
+        var repo = run.job.repoUrl.replace("https://github.com/","");
+        if (repo[repo.length -1] == "/") repo = repo.substr(0, repo.length - 1);
+        var options = {
+          host : "api.github.com",
+          path : utils.format("/repos/%s/statuses/%s", repo, job.ref),
+          method : "GET"
+        };
+        var intId = setInterval(function() {
+          var req = https.request(options, function (res) {
+            var data = "";
+
+            res.on('data', function (d) {
+              data += d.toString();
+            });
+
+            res.on('end', function () {
+              var resp = JSON.parse(data);
+
+              var l = resp.length;
+              for (var i=0; i < l; i++) {
+                var r = resp[i];
+                if (r.state == 'success') {
+                  // it passed, push it on the queue to get run
+                  runQ.push(run);
+                  clearInterval(intId);
+                  cb();
+                }
+                if (r.state == 'failure') {
+                  run.status = "error";
+                  run.error = new Error("Travis CI build failed");
+                  run.finished = new Date();
+                  run.save(function (err) {
+                    clearInterval(intId);
+                    cb();
+                  });
+                }
+              }
+            });
+          });
+          req.end();
+        }, 30 * 1000);
+      });
+    }, 3);
+
     // check for the tags and make sure they've all been run
     JobDesc.find({ ref : /\/tags\// }, function (err, jobs) {
       if (err) return console.log(err);
