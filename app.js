@@ -258,7 +258,7 @@ mongoose.connect(config.mongoDBuri, function () {
         if (repo[repo.length -1] == "/") repo = repo.substr(0, repo.length - 1);
         var options = {
           host : "api.github.com",
-          path : utils.format("/repos/%s/statuses/%s", repo, run.job.ref),
+          path : utils.format("/repos/%s/statuses/%s", repo, run.lastCommit),
           method : "GET"
         };
         var intId = setInterval(function() {
