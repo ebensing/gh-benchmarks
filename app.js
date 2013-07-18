@@ -322,7 +322,7 @@ mongoose.connect(config.mongoDBuri, function () {
             if (repo[repo.length -1] == "/") repo = repo.substr(0, repo.length - 1);
             var options = {
               host : "api.github.com",
-              path : utils.format("/repos/%s/git/%s", repo, job.ref),
+              path : utils.format("/repos/%s/git/refs/tags/%s", repo, job.ref),
               method : "GET"
             };
 
