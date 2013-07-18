@@ -7,6 +7,7 @@ var JobDesc = new Schema({
     repoUrl : String,
     cloneUrl : String,
     ref : String,
+    isTag : Boolean,
     tasks: [{ title : String, command : String }],
     charts: [{ title : String, type : { type : String }, config : {}}],
     before: [String],
@@ -15,18 +16,6 @@ var JobDesc = new Schema({
     saveLoc : { type : String, default : "benchmarks" },
     projectName : String,
     preservedFiles : [{ branch : String, name : String }]
-});
-
-JobDesc.virtual('branch').get(function () {
-  return this.ref.replace("refs/heads/","");
-});
-
-JobDesc.virtual('tag').get(function () {
-  return this.ref.replace("refs/tags/","");
-});
-
-JobDesc.virtual('cVal').get(function () {
-  return this.ref.indexOf("refs/tags/") == -1 ? this.branch : this.tag;
 });
 
 var Run = new Schema({

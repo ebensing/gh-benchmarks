@@ -87,7 +87,7 @@ mongoose.connect(config.mongoDBuri, function () {
           }, function (repo_loc, callback) {
 
             // switch to the correct ref
-            git.checkout_ref(repo_loc, run.job.cVal, function (err) {
+            git.checkout_ref(repo_loc, run.job.ref, function (err) {
               callback(err, repo_loc);
             });
 
@@ -301,7 +301,7 @@ mongoose.connect(config.mongoDBuri, function () {
     }, 3);
 
     // check for the tags and make sure they've all been run
-    JobDesc.find({ ref : /\/tags\// }, function (err, jobs) {
+    JobDesc.find({ isTag : true }, function (err, jobs) {
       if (err) return console.log(err);
       Run.find({ $or : [ { status : "success"}, { status : "error" }]}).distinct('job', function (err, ids) {
         if (err) return console.log(err);
@@ -377,7 +377,13 @@ mongoose.connect(config.mongoDBuri, function () {
       req.on('end', function () {
         // turn the data into an actual object that we can work with
         var reqJson = JSON.parse(qs.parse(reqData).payload);
-        JobDesc.findOne({ repoUrl : reqJson.repository.url, ref : reqJson.ref }, function (err, jd) {
+        var cond = {
+          repoUrl : reqJson.repository.url,
+          // we only need to remove the branches because a push notification
+          // will never be a tag
+          ref : reqJson.ref.replace("refs/heads/","")
+        };
+        JobDesc.findOne(cond, function (err, jd) {
           if (err) {
             console.log(err);
             return;

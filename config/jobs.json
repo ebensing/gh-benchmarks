@@ -5,16 +5,88 @@
       "projectName" : "Mongoose",
       "repoUrl" : "https://github.com/LearnBoost/mongoose",
       "cloneUrl" : "git@github.com:LearnBoost/mongoose.git",
-      "ref" : "refs/heads/master",
+      "ref" : "master",
       "tasks" : [
-        { "title" : "insert", "command" : "node test.js" },
-        { "title" : "update", "command" : "node test.js" }
+        { "title" : "performance", "command" : "node benchmarks.js" }
       ],
       "charts" : [
-        { "title" : "insert", "type" : "singleBar", "config" : { "taskTitle" : "insert", "field" : "dps" }}
+        { "title" : "Master Performance: Bar", 
+          "type" : "singleBar", 
+          "config" : { "taskTitle" : "performance", 
+                       "field" : "master" }
+        },
+        { "title" : "Master Performance: Line", 
+          "type" : "line", 
+          "config" : { "lines" : [
+            { "taskTitle" : "performance", "field" : "master" }
+          ] }
+        }
       ],
-      "before" : ["echo 'hello world!' > test1.txt", "touch test2"],
-      "after" : ["node after.js"],
+      "before" : ["npm install -d"],
+      "saveBranch" : "gh-pages"
+    },
+    {
+      "title" : "Master Benchmarks",
+      "projectName" : "Mongoose",
+      "repoUrl" : "https://github.com/LearnBoost/mongoose",
+      "cloneUrl" : "git@github.com:LearnBoost/mongoose.git",
+      "ref" : "master",
+      "tasks" : [
+        { "title" : "insert", "command" : "node test.js" },
+        { "title" : "delete", "command" : "node test.js" },
+        { "title" : "update", "command" : "node test.js" },
+        { "title" : "read", "command" : "node test.js" }
+      ],
+      "charts" : [
+        { "title" : "Master Performance: All Operations", 
+          "type" : "multiBar", 
+          "config" : { "values" : [
+              { "taskTitle" : "insert", "field" : "ops" },
+              { "taskTitle" : "update", "field" : "ops" },
+              { "taskTitle" : "delete", "field" : "ops" },
+              { "taskTitle" : "read", "field" : "ops" }
+            ]
+          }
+        },
+        { "title" : "Master Performance: All Operations", 
+          "type" : "line", 
+          "config" : { "lines" : [
+              { "taskTitle" : "insert", "field" : "ops" },
+              { "taskTitle" : "update", "field" : "ops" },
+              { "taskTitle" : "delete", "field" : "ops" },
+              { "taskTitle" : "read", "field" : "ops" }
+          ] }
+        },
+        { "title" : "Master Performance: Insert",
+          "type" : "line",
+          "config" : { "values" : [
+              { "taskTitle" : "insert", "field" : "ops" }
+            ]
+          }
+        },
+        { "title" : "Master Performance: Read",
+          "type" : "line",
+          "config" : { "values" : [
+              { "taskTitle" : "read", "field" : "ops" }
+            ]
+          }
+        },
+        { "title" : "Master Performance: Delete",
+          "type" : "line",
+          "config" : { "values" : [
+              { "taskTitle" : "delete", "field" : "ops" }
+            ]
+          }
+        },
+        { "title" : "Master Performance: Update",
+          "type" : "line",
+          "config" : { "values" : [
+              { "taskTitle" : "update", "field" : "ops" }
+            ]
+          }
+        }
+      ],
+      "before" : ["npm install -d"],
       "saveBranch" : "gh-pages"
     },
     {
@@ -22,7 +94,7 @@
       "projectName" : "dotfiles",
       "repoUrl" : "https://github.com/ebensing/dotfiles",
       "cloneUrl" : "git@github.com:ebensing/dotfiles.git",
-      "ref" : "refs/heads/master",
+      "ref" : "master",
       "tasks" : [
         { "title" : "insert", "command" : "node test.js" },
         { "title" : "update", "command" : "node test.js" }
@@ -48,7 +120,8 @@
       "projectName" : "dotfiles",
       "repoUrl" : "https://github.com/ebensing/dotfiles",
       "cloneUrl" : "git@github.com:ebensing/dotfiles.git",
-      "ref" : "refs/tags/test-tag",
+      "ref" : "test-tag",
+      "isTag" : true,
       "tasks" : [
         { "title" : "insert", "command" : "node test.js" },
         { "title" : "update", "command" : "node test.js" }
