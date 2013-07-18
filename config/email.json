@@ -1,0 +1,7 @@
+{
+  "from" : "benchmarks@rm-dash-r.com",
+  "to" : [
+    "ebensing@rm-dash-r.com",
+    "aaron.heckmann@10gen.com"
+  ]
+}

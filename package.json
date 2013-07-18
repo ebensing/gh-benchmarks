@@ -9,7 +9,8 @@
   "dependencies" : {
     "mongoose" : "*",
     "async" : "*",
-    "mkdirp" : "*"
+    "mkdirp" : "*",
+    "email" : "*"
   },
   "repository": {
     "type": "git",

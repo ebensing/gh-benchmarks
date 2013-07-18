@@ -1,7 +1,7 @@
 {
   "jobs" : [
     {
-      "title" : "Master Benchmarks",
+      "title" : "Master Benchmarks: Simple",
       "projectName" : "Mongoose",
       "repoUrl" : "https://github.com/LearnBoost/mongoose",
       "cloneUrl" : "git@github.com:LearnBoost/mongoose.git",
@@ -26,7 +26,7 @@
       "saveBranch" : "gh-pages"
     },
     {
-      "title" : "Master Benchmarks",
+      "title" : "Master Benchmarks: CRUD",
       "projectName" : "Mongoose",
       "repoUrl" : "https://github.com/LearnBoost/mongoose",
       "cloneUrl" : "git@github.com:LearnBoost/mongoose.git",

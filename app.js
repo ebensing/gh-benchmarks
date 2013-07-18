@@ -5,6 +5,7 @@
 var mongoose = require('mongoose');
 var async = require('async');
 var mkdirp = require('mkdirp');
+var email = require('email');
 
 var http = require('http');
 var https = require('https');
@@ -31,6 +32,9 @@ mongoose.connect(config.mongoDBuri, function () {
   var TaskRun = mongoose.model('TaskRun', models.TaskRun);
 
   var fileJobs = JSON.parse(fs.readFileSync("./config/jobs.json"));
+  // import email config & set the from address
+  var emailConfig = JSON.parse(fs.readFileSync("./config/email.json"));
+  email.from = emailConfig.from;
 
   async.each(fileJobs.jobs, function (job, cb) {
     JobDesc.findOne({ title : job.title }, function (err, jdb) {
@@ -151,11 +155,7 @@ mongoose.connect(config.mongoDBuri, function () {
                 return callback(err || new Error("One or more Tasks failed."));
               }
 
-              run.finished = new Date();
-              run.status = "success";
-              run.save(function (err) {
-                callback(err, repo_loc);
-              });
+              callback(err, repo_loc);
             });
           }, function (repo_loc, callback) {
             // run and post processing steps on the data
@@ -236,12 +236,19 @@ mongoose.connect(config.mongoDBuri, function () {
             run.finished = new Date();
             // save it and go to cleanup
             return run.save(function (err) {
+              // send the email to let people know it is done
+              sendCompletionEmail(run, emailConfig);
               cleanup(err, repo_loc, queueCallback);
             });
           }
 
-          // no error, go to cleanup
-          cleanup(null, repo_loc, queueCallback);
+          run.finished = new Date();
+          run.status = "success";
+          run.save(function (err) {
+            sendCompletionEmail(run, emailConfig);
+            // no error, go to cleanup
+            cleanup(null, repo_loc, queueCallback);
+          });
         });
       });
     }, 1);
@@ -422,5 +429,32 @@ function cleanup(err, repo_loc, callback) {
 
     // this is the callback on the queue
     callback();
+  });
+}
+
+/**
+ * Helper function for sending emails when benchmarks have finished
+ *
+ * @param {Object} run - this is the mongoose Run object for the benchmarks that just finished
+ * @param {Object} config - this is the config information for the email
+ */
+
+function sendCompletionEmail(run, config) {
+
+  var title = utils.format("Benchmarks on %s have finished", run.job.projectName);
+  var bodyTemplate = "Your Benchmarks for %s on the %s ref have finished running.\n\n";
+  body += "Here is the meta data on the run: \n\n %s \n\n";
+  body += "Check the results on Github";
+  var body = utils.format(bodyTemplate, run.job.projectName, run.job.ref, run.toString());
+  var e = new email.Email({
+    to : config.to,
+    subject: title,
+    body: body
+  });
+
+  e.send(function (err) {
+    if (err) {
+      console.log(err);
+    }
   });
 }
