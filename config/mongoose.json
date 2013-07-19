@@ -1,0 +1,73 @@
+{
+  "jobs" : [
+    {
+      "title" : "Master Benchmarks: CRUD",
+      "projectName" : "Mongoose",
+      "repoUrl" : "https://github.com/10gen-Interns/mongoose",
+      "cloneUrl" : "git@github.com:10gen-interns/mongoose.git",
+      "ref" : "benchmarking",
+      "tasks" : [
+        { "title" : "insert", "command" : "node benchmarks/basic/insert.js" },
+        { "title" : "delete", "command" : "node benchmarks/basic/remove.js" },
+        { "title" : "update", "command" : "node benchmarks/basic/update.js" },
+        { "title" : "read", "command" : "node benchmarks/basic/read.js" }
+      ],
+      "charts" : [
+        { "title" : "Master Performance: All Operations", 
+          "type" : "multiBar", 
+          "config" : { "values" : [
+              { "taskTitle" : "insert", "field" : "mongoose.dps" },
+              { "taskTitle" : "update", "field" : "mongoose.dps" },
+              { "taskTitle" : "delete", "field" : "mongoose.dps" },
+              { "taskTitle" : "read", "field" : "mongoose.dps" }
+            ]
+          }
+        },
+        { "title" : "Master Performance: All Operations", 
+          "type" : "line", 
+          "config" : { "lines" : [
+              { "taskTitle" : "insert", "field" : "mongoose.dps" },
+              { "taskTitle" : "update", "field" : "mongoose.dps" },
+              { "taskTitle" : "delete", "field" : "mongoose.dps" },
+              { "taskTitle" : "read", "field" : "mongoose.dps" }
+          ] }
+        },
+        { "title" : "Master Performance: Insert",
+          "type" : "line",
+          "config" : { "values" : [
+              { "taskTitle" : "insert", "field" : "mongoose.dps" },
+              { "taskTitle" : "insert", "field" : "driver.dps" }
+            ]
+          }
+        },
+        { "title" : "Master Performance: Read",
+          "type" : "line",
+          "config" : { "values" : [
+              { "taskTitle" : "read", "field" : "mongoose.dps" },
+              { "taskTitle" : "read", "field" : "driver.dps" }
+            ]
+          }
+        },
+        { "title" : "Master Performance: Delete",
+          "type" : "line",
+          "config" : { "values" : [
+              { "taskTitle" : "delete", "field" : "mongoose.dps" },
+              { "taskTitle" : "delete", "field" : "driver.dps" }
+            ]
+          }
+        },
+        { "title" : "Master Performance: Update",
+          "type" : "line",
+          "config" : { "values" : [
+              { "taskTitle" : "update", "field" : "mongoose.dps" },
+              { "taskTitle" : "update", "field" : "driver.dps" }
+            ]
+          }
+        }
+      ],
+      "before" : ["npm install -d"],
+      "saveBranch" : "gh-pages",
+      "saveLocation" : "benchmarks/"
+    }
+  ]
+}
