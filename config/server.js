@@ -10,7 +10,7 @@ exports.mongoDBuri = "mongodb://localhost/gh-benchmarks";
 
 
 /**
- * This the port that the server will run on. Defaults to port 80
+ * This the port that the server will run on. Defaults to port 8080
  */
 
 exports.port = 8080;
