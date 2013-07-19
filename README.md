@@ -115,7 +115,7 @@ Note: For this example, I am using a more javascript style syntax to make it
 easier to read, but the actual jobs should be in properly formatted JSON. If
 you don't know what this means, take a look at the examples
 
-```javsascript
+```javascript
 {
   // This is the Job title. It is used as a unique identifier for the job
   title : "Mongoose: Master Branch",
