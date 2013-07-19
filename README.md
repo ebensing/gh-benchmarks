@@ -253,7 +253,7 @@ easy to add your own chart renderer if you would like.
 
 ### Single Bar
 
-Single bar graph track a single value across commits and create a vertical line
+Single bar graph track a single value across commits and create a vertical bar
 for each commit/tag
 
 ```javascript
@@ -276,6 +276,73 @@ this:
   config : { taskTitle : "perf", field : "ops" }
 }
 ```
+
+### Multiple Bar
+
+This is a set of bars per commit/tag.
+
+```javascript
+{ 
+  title : "Multi-Bar Title",
+  type : "multiBar",
+  config : { values : [
+    { taskTitle : "title of the task", field : "field 1" },
+    { taskTitle : "title of the task", field : "field 2" },
+    { taskTitle : "title of the task", field : "field 3" },
+    { taskTitle : "title of the task", field : "field 4" }
+  ] }
+}
+```
+
+For example, if you had two tasks `{ title : "insert", command : "node
+insert.js" }` and `{ title : "update", command : "node update.js" }` and each
+produced output that looked like `{ time : X, ops : 123456 }` then the graph
+configuration would look like:
+
+```javascript
+{ 
+  title : "Multi-Bar Title",
+  type : "multiBar",
+  config : { values : [
+    { taskTitle : "insert", field : "ops" },
+    { taskTitle : "insert", field : "ops" }
+  ] }
+}
+```
+
+### Line Graph
+
+This is 1 or more lines graphed with the x-axis being commits/tags.
+
+```javascript
+{ 
+  title : "Line Title",
+  type : "line",
+  config : { lines : [
+    { taskTitle : "title of the task", field : "field 1" },
+    { taskTitle : "title of the task", field : "field 2" },
+    { taskTitle : "title of the task", field : "field 3" },
+    { taskTitle : "title of the task", field : "field 4" }
+  ] }
+}
+```
+
+For example, if you had two tasks `{ title : "insert", command : "node
+insert.js" }` and `{ title : "update", command : "node update.js" }` and each
+produced output that looked like `{ time : X, ops : 123456 }` then the graph
+configuration would look like:
+
+```javascript
+{ 
+  title : "Line Title",
+  type : "line",
+  config : { lines : [
+    { taskTitle : "insert", field : "ops" },
+    { taskTitle : "insert", field : "ops" }
+  ] }
+}
+```
+
 
 saveBranch - String
 --------------------
