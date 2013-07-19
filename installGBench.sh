@@ -41,4 +41,7 @@ if [ ! $MAIL ]; then
   echo "Sendmail installed!"
 fi
 
+echo "Installing node modules..."
+npm install -d
+
 echo "Setup complete. All dependencies have been installed"
