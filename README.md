@@ -115,47 +115,49 @@ Note: For this example, I am using a more javascript style syntax to make it
 easier to read, but the actual jobs should be in properly formatted JSON. If
 you don't know what this means, take a look at the examples
 
-    {
-      // This is the Job title. It is used as a unique identifier for the job
-      title : "Mongoose: Master Branch",
-      // This is the name of the project that this job relates to
-      projectName : "Mongoose",
-      // This is the URL of the Github repository
-      repoUrl : "https://github.com/LearnBoost/mongoose",
-      // This is the URL to clone your repository from (Only required if you
-      // are using a private repository)
-      cloneUrl : "git@github.com:LearnBoost/mongoose.git",
-      // This is the branch or tag name that the job should watch for
-      ref : "master",
-      // This tells us whether the ref is a tag
-      isTag : false,
-      // These are the commands to run before the tasks run
-      before : ["npm install -d"],
-      // These are the benchmark tasks to run
-      tasks : [
-        // each task has a title, which servers as a unique identifier and a
-        // command, which is the shell command to execute to run the benchmarks
-        { title : "performance", command : "node benchmarks.js" }
-      ],
-      // This is the command to run after all tasks have been completed. 
-      after : "node postProcessing.js",
-      // These are the charts to generate.
-      charts : [
-        // For more information on the format for charts, see below.
-      ],
-      // The branch that the new data and charts should be committed to.
-      // Defaults to gh-pages.
-      saveBranch : "gh-pages",
-      // The location in your repository where the benchmark data should be saved.
-      saveLoc : "benchmarks/",
-      // These are files you could like to have from other branches when you
-      // run your benchmarks. These are particularly useful if you are trying to
-      // run benchmarks on old tags that do not have the benchmark code in their
-      // version of the repository 
-      preservedFiles : [
-        { "branch" : "benchmarks", "name" : "benchmarks/main.js" }
-      ]
-    }
+```javsascript
+{
+  // This is the Job title. It is used as a unique identifier for the job
+  title : "Mongoose: Master Branch",
+  // This is the name of the project that this job relates to
+  projectName : "Mongoose",
+  // This is the URL of the Github repository
+  repoUrl : "https://github.com/LearnBoost/mongoose",
+  // This is the URL to clone your repository from (Only required if you
+  // are using a private repository)
+  cloneUrl : "git@github.com:LearnBoost/mongoose.git",
+  // This is the branch or tag name that the job should watch for
+  ref : "master",
+  // This tells us whether the ref is a tag
+  isTag : false,
+  // These are the commands to run before the tasks run
+  before : ["npm install -d"],
+  // These are the benchmark tasks to run
+  tasks : [
+    // each task has a title, which servers as a unique identifier and a
+    // command, which is the shell command to execute to run the benchmarks
+    { title : "performance", command : "node benchmarks.js" }
+  ],
+  // This is the command to run after all tasks have been completed. 
+  after : "node postProcessing.js",
+  // These are the charts to generate.
+  charts : [
+    // For more information on the format for charts, see below.
+  ],
+  // The branch that the new data and charts should be committed to.
+  // Defaults to gh-pages.
+  saveBranch : "gh-pages",
+  // The location in your repository where the benchmark data should be saved.
+  saveLoc : "benchmarks/",
+  // These are files you could like to have from other branches when you
+  // run your benchmarks. These are particularly useful if you are trying to
+  // run benchmarks on old tags that do not have the benchmark code in their
+  // version of the repository 
+  preservedFiles : [
+    { "branch" : "benchmarks", "name" : "benchmarks/main.js" }
+  ]
+}
+```
 
 Job Fields
 ====================
