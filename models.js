@@ -11,7 +11,7 @@ var JobDesc = new Schema({
     tasks: [{ title : String, command : String }],
     charts: [{ title : String, type : { type : String }, config : {}}],
     before: [String],
-    after: [String],
+    after: String,
     saveBranch : { type : String, default : "gh-pages" },
     saveLoc : { type : String, default : "benchmarks" },
     projectName : String,

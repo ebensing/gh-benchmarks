@@ -165,22 +165,33 @@ mongoose.connect(config.mongoDBuri, function () {
                 var tr = taskRuns[i];
                 allData[tr.title] = tr.data;
               }
-              async.eachSeries(run.job.after, function (item, acb) {
-                var arg = JSON.stringify(allData);
-                var command = utils.format("cd %s && %s '%s'", repo_loc, item, arg);
-                exec(command, function (err, stdout, stderr) {
-                  if (err) return acb(err);
-                  allData = JSON.parse(stdout.toString());
-                  acb();
-                });
-              }, function (err) {
-                if (err) return callback(err);
 
-                run.output = allData;
+              // split the command by spaces, need this to be able to spawn
+              var comArr = run.job.after.split(' ');
+              var command = comArr[0];
+              var args = comArr.slice(1);
+
+              // spawn the command
+              var proc = spawn(command, args);
+
+              // read the data coming back on stdout
+              var output = "";
+              proc.stdout.on('data', function (data) {
+                output += data.toString();
+              });
+
+              // save the output
+              proc.on('close', function (code) {
+                var outObj = JSON.parse(output);
+
+                run.output = outObj;
                 run.save(function (err) {
                   callback(err, repo_loc);
                 });
               });
+
+              // write in the data
+              proc.stdin.write(JSON.stringify(allData));
             });
           }, function (repo_loc, callback) {
             // need to remove the preserved files so that we can switch branches
