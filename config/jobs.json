@@ -4,7 +4,6 @@
       "title" : "Master Benchmarks: Simple",
       "projectName" : "Mongoose",
       "repoUrl" : "https://github.com/LearnBoost/mongoose",
-      "cloneUrl" : "git@github.com:LearnBoost/mongoose.git",
       "ref" : "master",
       "tasks" : [
         { "title" : "performance", "command" : "node benchmarks.js" }
@@ -29,7 +28,6 @@
       "title" : "Master Benchmarks: CRUD",
       "projectName" : "Mongoose",
       "repoUrl" : "https://github.com/LearnBoost/mongoose",
-      "cloneUrl" : "git@github.com:LearnBoost/mongoose.git",
       "ref" : "master",
       "tasks" : [
         { "title" : "insert", "command" : "node test.js" },
@@ -93,7 +91,6 @@
       "title" : "Master Benchmarks dotfiles",
       "projectName" : "dotfiles",
       "repoUrl" : "https://github.com/ebensing/dotfiles",
-      "cloneUrl" : "git@github.com:ebensing/dotfiles.git",
       "ref" : "master",
       "tasks" : [
         { "title" : "insert", "command" : "node test.js" },
@@ -119,7 +116,6 @@
       "title" : "Master Benchmarks dotfile taggggg",
       "projectName" : "dotfiles",
       "repoUrl" : "https://github.com/ebensing/dotfiles",
-      "cloneUrl" : "git@github.com:ebensing/dotfiles.git",
       "ref" : "test-tag",
       "isTag" : true,
       "tasks" : [

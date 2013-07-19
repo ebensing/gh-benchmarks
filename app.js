@@ -13,6 +13,7 @@ var qs = require('querystring');
 var fs = require('fs');
 var utils = require('util');
 var exec = require('child_process').exec;
+var spawn = require('child_process').exec;
 var path = require('path');
 
 var config = require('./config/server.js');
@@ -50,7 +51,32 @@ mongoose.connect(config.mongoDBuri, function () {
         jdb.save(cb);
       } else {
         // else create it
-        JobDesc.create(job, cb);
+        JobDesc.create(job, function (err, jobM) {
+          if (err) return cb(err);
+
+          // get the clone url
+          var repo = jobM.repoUrl.replace("https://github.com/","");
+          var options = {
+            host : "api.github.com",
+            path : utils.format("/repos/%s", repo),
+            method : "GET"
+          };
+          var req = https.request(options, function (res) {
+            var content = "";
+
+            res.on('data', function (data) {
+              content += data.toString();
+            });
+
+            res.on('end', function () {
+              var respObj = JSON.parse(content);
+              console.log(respObj);
+              jobM.cloneUrl = respObj.ssh_url;
+              jobM.save(cb);
+            });
+          });
+          req.end()
+        });
       }
     });
   }, function (err) {
@@ -164,6 +190,14 @@ mongoose.connect(config.mongoDBuri, function () {
               for (var i=0; i < taskRuns.length; i++) {
                 var tr = taskRuns[i];
                 allData[tr.title] = tr.data;
+              }
+
+              // if after doesn't exist, save the output and move on
+              if (!run.job.after) {
+                run.ouput = allData;
+                return run.save(function (err) {
+                  callback(err, repo_loc);
+                });
               }
 
               // split the command by spaces, need this to be able to spawn
