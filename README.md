@@ -254,11 +254,12 @@ first item is treated as the program name, and the rest of the items are passed
 in as arguments.
 
 IE. `node someThing.js --flags` means `node` is run with `someThing.js` as
-argument 1 and `--flags` as argument 2.
+argument 1 and `--flags` as argument 2. Do not try and pipe stuff like `grep *
+| node fail.js`, ect.
 
 This is different from the `before` and `task` commands, which are all run
 using
-[exec](http://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback).
+[`exec`](http://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback).
 
 charts - Array of Charts
 --------------------
