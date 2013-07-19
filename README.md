@@ -42,9 +42,10 @@ Workflow
    results are collected
 5. To run the benchmarks, the system clones a fresh copy of the repository,
    runs any "before" commands, and then executes all tasks sequentially.
-6. After all of the tasks have completed, the system then generates the charts
-   specified in the config file.
-7. Finally, these charts are then committed and pushed to Github (by default,
+6. After all of the tasks have completed, the system then runs an after command
+   if one exists
+7. Then, the system generates the charts specified in the config file.
+8. Finally, these charts are then committed and pushed to Github (by default,
    in the gh-pages branch)
 
 Installation
@@ -363,8 +364,11 @@ configuration would look like:
 
 As mentioned in the output script, it is highly recommended to keep the output
 in the same format. This is because the grapher essentially graphs its values
-using code like this `run.output[taskTitle][field]` Keep this in mind when
-doing post-processing computation and modifying the output of your tasks.
+using code like this `Object.byString(run.output[taskTitle], field)`
+`Object.byString` is a function that can get nested reference by using a
+string. So, these are all valid field values : `prop.anotherprop.thing`,
+`prop[0].thing`, and `thing`. Keep this in mind when doing post-processing
+computation and modifying the output of your tasks.
 
 saveBranch - String
 --------------------
