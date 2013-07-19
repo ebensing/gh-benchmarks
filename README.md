@@ -242,10 +242,40 @@ format:
 Where the task1.title, ect. is replace by the title of the task. This command
 should also produce JSON content on stdout, which will be saved as the output
 for the run. This is the content that will be used when generating the charts.
+IT IS HIGHLY RECOMMENDED THAT YOU KEEP IT IN THIS SAME FORMAT, IE. taskTitle :
+content. The reasoning behind this is explained in the charts section
 
 charts - Array of Charts
 --------------------
-come back to this...
+By default, gh-benchmarks supports 3 kinds of graphs: line, single bar, and
+multiple bar. The formats for each of these looks a little different, and it
+easy to add your own chart renderer if you would like.
+
+### Single Bar
+
+Single bar graph track a single value across commits and create a vertical line
+for each commit/tag
+
+```javascript
+{ 
+  title : "Single Bar Title",
+  type : "singleBar",
+  config : { taskTitle : "title of the task", field : "field of the output to graph" }
+}
+```
+
+For example, if you have some task `{ title : "perf", command : "node perf.js"
+}` and it produces the following JSON output when it finishes `{ time : X, ops
+: 123456 }` Then in order to graph the `ops` value, you would have a chart like
+this:
+
+```javascript
+{ 
+  title : "Single Bar Title",
+  type : "singleBar",
+  config : { taskTitle : "perf", field : "ops" }
+}
+```
 
 saveBranch - String
 --------------------
