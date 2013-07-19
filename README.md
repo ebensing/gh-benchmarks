@@ -343,7 +343,6 @@ configuration would look like:
 }
 ```
 
-
 saveBranch - String
 --------------------
 This is the branch that all of the content for the charts will be saved to. It
@@ -367,3 +366,36 @@ This is an array of files to make available to the repo before running the tasks
 These are only other files in the repository. This feature is meant to allow
 you to either keep all benchmarking code in its own branch or to run these
 benchmarks on old tags that do not have the benchmarks in them.
+
+Extending the Charts
+====================
+
+The charts are fairly easy to extend in functionality. You can add to the
+existing grapher by submitting pull requests to
+[gh-benchmarks-grapher](https://github.com/ebensing/gh-benchmarks-grapher) or
+by creating your own module. Installation/specs are below
+
+You can see where we import the grapher at around [line
+28](https://github.com/ebensing/gh-benchmarks/blob/master/app.js#L28) in
+app.js. To install your new grapher, simply change this one line.
+
+A grapher module must export 1 method, `buildGraphs`
+
+`exports.buildGraphs = function (runs, job, repo_loc, callback) {`
+
+buildGraphs will recieve the following parameters:
+
+1. runs - This is an array of the mongoose objects that represent a run. Their
+   schema can be found in
+   [model.js](https://github.com/ebensing/gh-benchmarks/blob/master/models.js) 
+2. job - This is the job that the runs belong to. The job's schema can also be
+   found in
+   [model.js](https://github.com/ebensing/gh-benchmarks/blob/master/models.js)
+   as "JobDesc"
+3. repo_loc - This is the location of the repo relative to the current working
+   directory
+4. callback - This is the callback function to fire when the grapher finishes
+   running. It has the following signature: `function callback(error, files)`
+   where `files` is an array of strings of the file names that were modified or
+   added to the repo. These names should be relative to the root directory *of
+   the repository*
