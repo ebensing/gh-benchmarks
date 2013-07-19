@@ -5,6 +5,48 @@ Github Benchmarks
 This project enables you to easily setup benchmarks for any Github repo. 
 Basically, TravisCI but for benchmarks.
 
+Overview
+====================
+
+gh-benchmarks it is meant to be language agnostic- if you set everything up
+correctly, this should be able to do benchmarks for any piece of software.
+
+Each instance of gh-benchmarks that is running (only recommend 1 per sever),
+has a collection of jobs to run. These jobs describe different benchmarks that
+should be run for your project. Each Job is made up of a collection of tasks,
+these tasks are shell commands that should run your benchmarks (IE. `node
+benchmarks.js` or `make benchmarks`).
+
+Each task should output *JSON* data representing the information collected
+during that benchmark run. It does not need to be in any specific format,
+unless you are using one of the pre-made templates, in which case it should
+conform to those standards.
+
+Each job also has charts associated with it. These can be bar or line charts.
+(by default, you are welcome to extend the functionality and create new charts!
+See below for more information) They will be uploaded into a specified branch
+of your Github repository along with the data. (By default, this all goes in
+your gh-pages branch)
+
+Workflow
+------------------
+
+1. After you push to your repository, a Github webhook is triggered.
+2. gh-benchmark examines the request and sees if it matches any jobs in your
+   jobs configuration
+3. If it does, then it starts checking Github every 30 seconds to see if the
+   status on the HEAD commit is "success" or "failure" (Generally, this is
+   something Travis CI will upload once your project finishes all of its tests)
+4. If the status is "success," then the system will queue up the benchmarks to
+   be run. Note: Only a single benchmark runs at a time to make sure consistent
+   results are collected
+5. To run the benchmarks, the system clones a fresh copy of the repository,
+   runs any "before" commands, and then executes all tasks sequentially.
+6. After all of the tasks have completed, the system then generates the charts
+   specified in the config file.
+7. Finally, these charts are then committed and pushed to Github (by default,
+   in the gh-pages branch)
+
 Installation
 ====================
 
@@ -43,48 +85,6 @@ repository's home page
 5. (Optional) It is recommended that you make the port only available to the
    IPs listed below the "Update settings" button
 
-Overview
-====================
-
-First, an overview on how gh-benchmarks functions. First, it is meant to be
-language agnostic- if you set everything up correctly, this should be able to
-do benchmarks for any piece of software.
-
-Each instance of gh-benchmarks that is running (only recommend 1 per sever),
-has a collection of jobs to run. These jobs describe different benchmarks that
-should be run for your project. Each Job is made up of a collection of tasks,
-these tasks are shell commands that should run your benchmarks (IE. `node
-benchmarks.js` or `make benchmarks`).
-
-Each task should output *JSON* data representing the information collected
-during that benchmark run. It does not need to be in any specific format,
-unless you are using one of the pre-made templates, in which case it should
-conform to those standards.
-
-Each job also has charts associated with it. These can be bar or line charts.
-(by default, you are welcome to extend the functionality and create new charts!
-See below for more information) They will be uploaded into a specified branch
-of your Github repository along with the data. (By default, this all goes in
-your gh-pages branch)
-
-Workflow
-------------------
-
-1. After you push to your repository, a Github webhook is triggered.
-2. gh-benchmark examines the request and sees if it matches any jobs in your
-   jobs configuration
-3. If it does, then it starts checking Github every 30 seconds to see if the
-   status on the HEAD commit is "success" or "failure" (Generally, this is
-   something Travis CI will upload once your project finishes all of its tests)
-4. If the status is "success," then the system will queue up the benchmarks to
-   be run. Note: Only a single benchmark runs at a time to make sure consistent
-   results are collected
-5. To run the benchmarks, the system clones a fresh copy of the repository,
-   runs any "before" commands, and then executes all tasks sequentially.
-6. After all of the tasks have completed, the system then generates the charts
-   specified in the config file.
-7. Finally, these charts are then committed and pushed to Github (by default,
-   in the gh-pages branch)
 
 Configuration
 ====================
