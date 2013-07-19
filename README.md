@@ -245,6 +245,21 @@ for the run. This is the content that will be used when generating the charts.
 IT IS HIGHLY RECOMMENDED THAT YOU KEEP IT IN THIS SAME FORMAT, IE. taskTitle :
 content. The reasoning behind this is explained in the charts section
 
+### Note
+
+This uses node's
+[`child_process.spawn`](http://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options)
+method to run this command. Thus, the command is split along spaces and the
+first item is treated as the program name, and the rest of the items are passed
+in as arguments.
+
+IE. `node someThing.js --flags` means `node` is run with `someThing.js` as
+argument 1 and `--flags` as argument 2.
+
+This is different from the `before` and `task` commands, which are all run
+using
+[exec](http://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback).
+
 charts - Array of Charts
 --------------------
 By default, gh-benchmarks supports 3 kinds of graphs: line, single bar, and
