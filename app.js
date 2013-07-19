@@ -54,6 +54,12 @@ mongoose.connect(config.mongoDBuri, function () {
         JobDesc.create(job, function (err, jobM) {
           if (err) return cb(err);
 
+          // if the user specified the cloneUrl don't check- we allow the user
+          // to specify their own in case they have a private repo
+          if (jobM.cloneUrl) {
+            return cb();
+          }
+
           // get the clone url
           var repo = jobM.repoUrl.replace("https://github.com/","");
           var options = {
