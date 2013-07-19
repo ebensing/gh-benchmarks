@@ -305,7 +305,7 @@ configuration would look like:
   type : "multiBar",
   config : { values : [
     { taskTitle : "insert", field : "ops" },
-    { taskTitle : "insert", field : "ops" }
+    { taskTitle : "update", field : "ops" }
   ] }
 }
 ```
@@ -342,6 +342,13 @@ configuration would look like:
   ] }
 }
 ```
+
+### How taskTitle and field are used
+
+As mentioned in the output script, it is highly recommended to keep the output
+in the same format. This is because the grapher essentially graphs its values
+using code like this `run.output[taskTitle][field]` Keep this in mind when
+doing post-processing computation and modifying the output of your tasks.
 
 saveBranch - String
 --------------------
