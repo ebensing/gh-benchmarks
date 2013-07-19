@@ -24,12 +24,24 @@ You need to have the following things installed on your system:
 2. [MongoDB](http://docs.mongodb.org/manual/installation/)
 3. [SendMail](http://www.sendmail.com/sm/open_source/)
 4. [Git](https://help.github.com/articles/set-up-git#platform-all)
-
 5. After all of these dependencies have been installed, run `npm install -d`
    from the root directory of the project
 
 And that's it! All of the necessary dependencies should be installed. Now, you
-just need to setup the config and you should be good to go
+just need to setup the config and webhook!
+
+Webhook
+--------------------
+In order to setup a webhook for your repository, do the following from your
+repository's home page
+
+1. "Settings"
+2. "Service Hooks"
+3. "WebHook URLs"
+4. Add mydomain.com:port as a URL. The default port is 8080, but check
+   server.js to see what this value is for you.
+5. (Optional) It is recommended that you make the port only available to the
+   IPs listed below the "Update settings" button
 
 Overview
 ====================
