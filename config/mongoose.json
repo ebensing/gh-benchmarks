@@ -3,7 +3,7 @@
     {
       "title" : "Master Benchmarks: CRUD",
       "projectName" : "Mongoose",
-      "repoUrl" : "https://github.com/10gen-Interns/mongoose",
+      "repoUrl" : "https://github.com/10gen-interns/mongoose",
       "cloneUrl" : "git@github.com:10gen-interns/mongoose.git",
       "ref" : "benchmarking",
       "tasks" : [
@@ -67,7 +67,7 @@
       ],
       "before" : ["npm install -d"],
       "saveBranch" : "gh-pages",
-      "saveLocation" : "benchmarks/"
+      "saveLocation" : "benchmarks"
     }
   ]
 }
