@@ -250,7 +250,7 @@ mongoose.connect(config.mongoDBuri, function () {
             });
           }, function (repo_loc, callback) {
             // get all of the data, the pass it into the grapher
-            var cond = { job : run.job.id, status : "success" };
+            var cond = { job : run.job.id };
             var opts = { sort : '-ts' };
             Run.find(cond, {}, opts, function (err, runs) {
               if (err) return callback(err);
