@@ -34,7 +34,7 @@
         },
         { "title" : "Master Performance: Insert",
           "type" : "line",
-          "config" : { "values" : [
+          "config" : { "lines" : [
               { "taskTitle" : "insert", "field" : "mongoose.dps" },
               { "taskTitle" : "insert", "field" : "driver.dps" }
             ]
@@ -42,7 +42,7 @@
         },
         { "title" : "Master Performance: Read",
           "type" : "line",
-          "config" : { "values" : [
+          "config" : { "lines" : [
               { "taskTitle" : "read", "field" : "mongoose.dps" },
               { "taskTitle" : "read", "field" : "driver.dps" }
             ]
@@ -50,7 +50,7 @@
         },
         { "title" : "Master Performance: Delete",
           "type" : "line",
-          "config" : { "values" : [
+          "config" : { "lines" : [
               { "taskTitle" : "delete", "field" : "mongoose.dps" },
               { "taskTitle" : "delete", "field" : "driver.dps" }
             ]
@@ -58,7 +58,7 @@
         },
         { "title" : "Master Performance: Update",
           "type" : "line",
-          "config" : { "values" : [
+          "config" : { "lines" : [
               { "taskTitle" : "update", "field" : "mongoose.dps" },
               { "taskTitle" : "update", "field" : "driver.dps" }
             ]
