@@ -33,11 +33,13 @@ if [ ! $GIT ]; then
   echo "Git installed!"
 fi
 
-echo "Checking to see if sendmail is installed..."
-MAIL=`which sendmail`
+echo "Checking to see if postfix is installed..."
+MAIL=`which postfix`
 if [ ! $MAIL ]; then
+  echo "We are installing postfix. Please Select 'Internet Site' when prompted to"
+  read -p "Press any key to continue..." -n1 -s
   echo "Installing sendmail"
-  sudo apt-get install sendmail
+  sudo apt-get install postfix
   echo "Sendmail installed!"
 fi
 
