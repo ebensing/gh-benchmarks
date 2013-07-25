@@ -19,6 +19,7 @@ var path = require('path');
 var config = require('./config/server.js');
 var models = require('./models.js');
 var git = require('./git.js');
+var gauss = require('gauss');
 
 // for debugging
 //mongoose.set('debug', true);
@@ -508,7 +509,7 @@ mongoose.connect(config.mongoDBuri, function () {
         return Object.byString(item.output[alrt.taskTitle], alrt.field);
       });
 
-      var set = new guass.Vector(values);
+      var set = new gauss.Vector(values);
       var stdev = set.stdev();
       var mean = set.mean();
 

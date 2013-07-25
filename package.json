@@ -10,7 +10,8 @@
     "mongoose" : "*",
     "async" : "*",
     "mkdirp" : "*",
-    "email" : "*"
+    "email" : "*",
+    "gauss" : "*"
   },
   "repository": {
     "type": "git",
