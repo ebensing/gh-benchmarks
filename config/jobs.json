@@ -110,6 +110,9 @@
       "saveLoc" : ".",
       "preservedFiles" : [
         { "branch" : "gh-pages", "name" : "data.json" }
+      ],
+      "alerts" : [
+        { "taskTitle" : "insert", "field" : "stats.hz", "type" : "std-dev" }
       ]
     },
     {

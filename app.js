@@ -21,7 +21,23 @@ var models = require('./models.js');
 var git = require('./git.js');
 
 // for debugging
-mongoose.set('debug', true);
+//mongoose.set('debug', true);
+
+// helper function to get object property by string
+Object.byString = function(o, s) {
+  s = s.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
+  s = s.replace(/^\./, '');           // strip a leading dot
+  var a = s.split('.');
+  while (a.length) {
+      var n = a.shift();
+      if (n in o) {
+          o = o[n];
+      } else {
+          return;
+      }
+  }
+  return o;
+}
 
 // the module that will do the graphing
 // this is where you change it if you want to use your own
@@ -296,8 +312,17 @@ mongoose.connect(config.mongoDBuri, function () {
           run.status = "success";
           run.save(function (err) {
             sendCompletionEmail(run, emailConfig);
-            // no error, go to cleanup
-            cleanup(null, repo_loc, queueCallback);
+            async.each(run.job.alerts, function (alrt, acb) {
+              switch(alrt.type) {
+                case "std-dev":
+                  processStdDevEmail(run.job, acb);
+                  break;
+              }
+            }, function (err) {
+              if (err) console.log(err);
+              // no error, go to cleanup
+              cleanup(null, repo_loc, queueCallback);
+            });
           });
         });
       });
@@ -468,6 +493,50 @@ mongoose.connect(config.mongoDBuri, function () {
       console.log("Now listening on port %d", config.port);
     });
   });
+
+  // this function does the processing on a standard deviation alert
+  function processStdDevEmail(job, alrt, callback) {
+
+    Run.find({ job : job.id }, {}, { sort : '-ts' }, function (err, runs) {
+      if (err) {
+        return callback(err);
+      }
+
+      // grab the most recent run
+      var mostRecent = runs.shift();
+      var values = runs.map(function (item) {
+        return Object.byString(item.output[alrt.taskTitle], alrt.field);
+      });
+
+      var set = new guass.Vector(values);
+      var stdev = set.stdev();
+      var mean = set.mean();
+
+      var mrVal = Object.byString(mostRecent.output[alrt.taskTitle], alrt.field);
+
+      var diff = Math.abs(mean - mrVal);
+      if (diff > stdev) {
+        // send the email
+
+        var title = utils.format("Benchmarks on %s have changed by at least a standard deviation", job.projectName);
+        var bodyTemplate = "Your Benchmarks for %s on the %s ref have finished running.\n\n";
+        body += "The results differed by at least a standard deviation: \n\n";
+        body += "Mean: %d\nStandard Deviation: %d\n Result: %d\n\n";
+        body += "Check the full results on Github";
+        var body = utils.format(bodyTemplate, job.projectName, job.ref, mean, stdev, mrVal);
+        var e = new email.Email({
+          to : config.to,
+          subject: title,
+          body: body
+        });
+
+        e.send(callback);
+      } else {
+        // within a standard deviation, don't send an email
+        callback();
+      }
+    });
+  }
 });
 
 function cleanup(err, repo_loc, callback) {
@@ -508,3 +577,4 @@ function sendCompletionEmail(run, config) {
     }
   });
 }
+

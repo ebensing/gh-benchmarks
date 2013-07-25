@@ -15,7 +15,10 @@ var JobDesc = new Schema({
     saveBranch : { type : String, default : "gh-pages" },
     saveLoc : { type : String, default : "benchmarks" },
     projectName : String,
-    preservedFiles : [{ branch : String, name : String }]
+    preservedFiles : [{ branch : String, name : String }],
+    alerts : [{ taskTitle : String,
+              field : String,
+              type : { type : String, enum : ["std-dev"] }}]
 });
 
 var Run = new Schema({
