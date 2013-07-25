@@ -76,7 +76,6 @@ mongoose.connect(config.mongoDBuri, function () {
 
             res.on('end', function () {
               var respObj = JSON.parse(content);
-              console.log(respObj);
               jobM.cloneUrl = respObj.ssh_url;
               jobM.save(cb);
             });
