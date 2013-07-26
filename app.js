@@ -504,7 +504,7 @@ mongoose.connect(config.mongoDBuri, function () {
   // this function does the processing on a standard deviation alert
   function processStdDevEmail(job, alrt, callback) {
 
-    Run.find({ job : job.id }, {}, { sort : '-ts' }, function (err, runs) {
+    Run.find({ job : job.id, status : "success" }, {}, { sort : '-ts' }, function (err, runs) {
       if (err) {
         return callback(err);
       }
