@@ -339,6 +339,7 @@ mongoose.connect(config.mongoDBuri, function () {
     // yet
     var travisQ = async.queue(function (run, cb) {
       run.populate('job', function (err) {
+        console.log("Watching for build status for %s", run.job.title);
         if (err) {
           run.error = err;
           run.status = "error";
