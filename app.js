@@ -222,7 +222,7 @@ mongoose.connect(config.mongoDBuri, function () {
 
               // if after doesn't exist, save the output and move on
               if (!run.job.after) {
-                run.ouput = allData;
+                run.output = allData;
                 return run.save(function (err) {
                   callback(err, repo_loc);
                 });
