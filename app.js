@@ -16,7 +16,12 @@ var exec = require('child_process').exec;
 var spawn = require('child_process').exec;
 var path = require('path');
 
-var config = require('./config/server.js');
+var config;
+if (process.env.GH_DEV) {
+ config = require('./test/server.js');
+} else {
+ config = require('./config/server.js');
+}
 var models = require('./models.js');
 var git = require('./git.js');
 var gauss = require('gauss');
@@ -49,9 +54,9 @@ mongoose.connect(config.mongoDBuri, function () {
   var Run = mongoose.model('Run', models.Run);
   var TaskRun = mongoose.model('TaskRun', models.TaskRun);
 
-  var fileJobs = JSON.parse(fs.readFileSync("./config/jobs.json"));
+  var fileJobs = JSON.parse(fs.readFileSync(config.jobsFile));
   // import email config & set the from address
-  var emailConfig = JSON.parse(fs.readFileSync("./config/email.json"));
+  var emailConfig = JSON.parse(fs.readFileSync(config.emailFile));
   email.from = emailConfig.from;
 
   async.each(fileJobs.jobs, function (job, cb) {
@@ -78,9 +83,9 @@ mongoose.connect(config.mongoDBuri, function () {
           }
 
           // get the clone url
-          var repo = jobM.repoUrl.replace("https://github.com/","");
+          var repo = jobM.repoUrl.replace(config.githubUri, "");
           var options = {
-            host : "api.github.com",
+            host : config.githubApiUri,
             path : utils.format("/repos/%s", repo),
             method : "GET"
           };
@@ -339,10 +344,10 @@ mongoose.connect(config.mongoDBuri, function () {
           return run.save(cb);
         }
 
-        var repo = run.job.repoUrl.replace("https://github.com/","");
+        var repo = run.job.repoUrl.replace(config.githubUri,"");
         if (repo[repo.length -1] == "/") repo = repo.substr(0, repo.length - 1);
         var options = {
-          host : "api.github.com",
+          host : config.githubApiUri,
           path : utils.format("/repos/%s/statuses/%s", repo, run.lastCommit),
           method : "GET"
         };
@@ -401,10 +406,10 @@ mongoose.connect(config.mongoDBuri, function () {
             });
 
             // time to get the head commit
-            var repo = job.repoUrl.replace("https://github.com/","");
+            var repo = job.repoUrl.replace(config.githubUri,"");
             if (repo[repo.length -1] == "/") repo = repo.substr(0, repo.length - 1);
             var options = {
-              host : "api.github.com",
+              host : config.githubApiUri,
               path : utils.format("/repos/%s/git/refs/tags/%s", repo, job.ref),
               method : "GET"
             };
@@ -447,7 +452,6 @@ mongoose.connect(config.mongoDBuri, function () {
       if (req.headers['user-agent'].indexOf("GitHub Hookshot") == -1 ||
           !req.headers['x-github-delivery'] || !req.headers['x-github-event']
           || req.method != 'POST') {
-        console.log(req.headers);
         res.write("Only Accept requests from Github\n");
         res.statysCode = 505;
         return res.end();
@@ -505,6 +509,11 @@ mongoose.connect(config.mongoDBuri, function () {
 
       // grab the most recent run
       var mostRecent = runs.shift();
+
+      // if this is our very first run, don't worry about any of this
+      if (runs.length == 0) {
+        return callback();
+      }
       var values = runs.map(function (item) {
         return Object.byString(item.output[alrt.taskTitle], alrt.field);
       });

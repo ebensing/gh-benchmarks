@@ -31,11 +31,11 @@ exports.githubApiUri = "api.github.com";
  * This is the file that contains the jobs
  */
 
-exports.jobsFile = "./config/jobs.json";
+exports.jobsFile = "./test/jobs.json";
 
 /**
  * This is the file that contains the email config
  */
 
-exports.emailFile = "./config/email.json";
+exports.emailFile = "./test/email.json";
 
