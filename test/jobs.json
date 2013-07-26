@@ -13,7 +13,7 @@
           "type" : "multiBar", 
           "config" : { "values" : [
             { "taskTitle" : "performance", "field" : "value1" },
-            { "taskTitle" : "performance", "field" : "nested.value" },
+            { "taskTitle" : "performance", "field" : "nested.value" }
           ] }
         },
         { "title" : "Master Performance: Line", 
@@ -42,7 +42,7 @@
           "type" : "multiBar", 
           "config" : { "values" : [
             { "taskTitle" : "performance", "field" : "value1" },
-            { "taskTitle" : "performance", "field" : "nested.value" },
+            { "taskTitle" : "performance", "field" : "nested.value" }
           ] }
         },
         { "title" : "Master Performance: Line", 
