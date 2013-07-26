@@ -396,11 +396,15 @@ mongoose.connect(config.mongoDBuri, function () {
       Run.find({ $or : [ { status : "success"}, { status : "error" }]}).distinct('job', function (err, ids) {
         if (err) return console.log(err);
 
+        var idMap = {};
+        for (var i=0; i < ids.length; i++) {
+          idMap[ids[i].toString()] = 1;
+        }
         var l = jobs.length;
         for (var i=0; i < l; i++) {
           var job = jobs[i];
 
-          if (ids.indexOf(job.id) == -1) {
+          if (idMap[job.id.toString()] === undefined) {
             var run = new Run({
               ts : new Date(),
               job : job.id,
