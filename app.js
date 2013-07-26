@@ -116,6 +116,7 @@ mongoose.connect(config.mongoDBuri, function () {
           console.log(err);
           return queueCallback(err);
         }
+        console.log("Running Job: %s", run.job.title);
         async.waterfall([
           function (callback) {
             // clone the repo
