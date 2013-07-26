@@ -537,7 +537,7 @@ mongoose.connect(config.mongoDBuri, function () {
         body += "Check the full results on Github";
         var body = utils.format(bodyTemplate, job.projectName, job.ref, mean, stdev, mrVal);
         var e = new email.Email({
-          to : config.to,
+          to : emailConfig.to,
           subject: title,
           body: body
         });
