@@ -322,7 +322,7 @@ mongoose.connect(config.mongoDBuri, function () {
             async.each(run.job.alerts, function (alrt, acb) {
               switch(alrt.type) {
                 case "std-dev":
-                  processStdDevEmail(run.job, acb);
+                  processStdDevEmail(run.job, alrt, acb);
                   break;
               }
             }, function (err) {
