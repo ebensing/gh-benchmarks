@@ -532,9 +532,9 @@ mongoose.connect(config.mongoDBuri, function () {
 
         var title = utils.format("Benchmarks on %s have changed by at least a standard deviation", job.projectName);
         var bodyTemplate = "Your Benchmarks for %s on the %s ref have finished running.\n\n";
-        body += "The results differed by at least a standard deviation: \n\n";
-        body += "Mean: %d\nStandard Deviation: %d\n Result: %d\n\n";
-        body += "Check the full results on Github";
+        bodyTemplate += "The results differed by at least a standard deviation: \n\n";
+        bodyTemplate += "Mean: %d\nStandard Deviation: %d\n Result: %d\n\n";
+        bodyTemplate += "Check the full results on Github";
         var body = utils.format(bodyTemplate, job.projectName, job.ref, mean, stdev, mrVal);
         var e = new email.Email({
           to : emailConfig.to,
@@ -574,8 +574,8 @@ function sendCompletionEmail(run, config) {
 
   var title = utils.format("Benchmarks on %s have finished", run.job.projectName);
   var bodyTemplate = "Your Benchmarks for %s on the %s ref have finished running.\n\n";
-  body += "Here is the meta data on the run: \n\n %s \n\n";
-  body += "Check the results on Github";
+  bodyTemplate += "Here is the meta data on the run: \n\n %s \n\n";
+  bodyTemplate += "Check the results on Github";
   var body = utils.format(bodyTemplate, run.job.projectName, run.job.ref, run.toString());
   var e = new email.Email({
     to : config.to,
