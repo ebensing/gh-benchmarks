@@ -28,6 +28,37 @@ See below for more information) They will be uploaded into a specified branch
 of your Github repository along with the data. (By default, this all goes in
 your gh-pages branch)
 
+Table of Contents
+------------------
+
+- [Workflow](./gh-benchmarks#workflow)
+- [Installation](./gh-benchmarks#installation)
+- [Webhook](./gh-benchmarks#webhook)
+- [Configuration](./gh-benchmarks#configuration)
+  - [server.js](./gh-benchmarks#serverjs)
+  - [email.json](./gh-benchmarks#emailjson)
+  - [jobs.json](./gh-benchmarks#jobsjson)
+- [Job](./gh-benchmarks#job)
+- [Job Fields](./gh-benchmarks#job-fields)
+  - [title](./gh-benchmarks#title---string)
+  - [projectName](./gh-benchmarks#projectname---string)
+  - [repoUrl](./gh-benchmarks#repourl---string)
+  - [cloneUrl](./gh-benchmarks#cloneurl---string)
+  - [ref](./gh-benchmarks#ref---string)
+  - [tags](./gh-benchmarks#tags---array-of-strings)
+  - [before](./gh-benchmarks#before---array-of-strings)
+  - [tasks](./gh-benchmarks#tasks---array-of-tasks)
+  - [after](./gh-benchmarks#after---string)
+  - [charts](./gh-benchmarks#charts---array-of-charts)
+    - [Single Bar](./gh-benchmarks#single-bar)
+    - [Multiple Bar](./gh-benchmarks#multiple-bar)
+    - [Line Graph](./gh-benchmarks#line-graph)
+    - [How taskTitle and field are used](./gh-benchmarks#how-tasktitle-and-field-are-used)
+  - [saveBranch](./gh-benchmarks#savebranch---string)
+  - [saveLoc](./gh-benchmarks#saveloc---string)
+  - [preservedFiles](./gh-benchmarks#preservedfiles---object)
+- [Extending the Charts](./gh-benchmarks#extending-the-charts)
+
 Workflow
 ------------------
 
