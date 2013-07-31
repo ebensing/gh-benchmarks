@@ -127,9 +127,20 @@ mongoose.connect(config.mongoDBuri, function () {
             // branch that you want available in your main branch. useful for
             // running benchmarks on old tags, ect
 
+            // first, check if we even need to worry about them. This config
+            // option was added when the new tag system was introduced. You
+            // might only want the preserved files on the tag and not on the
+            // branch that you are watching
+
+            var searchName = run.tagName || run.job.ref;
+
+            if (run.job.perservedFiles && run.job.perservedFiles.refs.indexOf(searchName) == -1) {
+              return callback(null, repo_loc);
+            }
+
             // copy all the necessary files
             // checkout the correct branch for each file & exec command
-            async.eachSeries(run.job.preservedFiles, function (item, pcb) {
+            async.eachSeries(run.job.preservedFiles.files, function (item, pcb) {
               var dir = utils.format("repos/.tmp/%s", path.dirname(item.name));
               mkdirp(dir, function(err) {
                 if (err) return pcb(err);
@@ -256,6 +267,15 @@ mongoose.connect(config.mongoDBuri, function () {
               proc.stdin.write(JSON.stringify(allData));
             });
           }, function (repo_loc, callback) {
+
+            // check if we need to actually run this first
+
+            var searchName = run.tagName || run.job.ref;
+
+            if (run.job.perservedFiles && run.job.perservedFiles.refs.indexOf(searchName) == -1) {
+              return callback(null, repo_loc);
+            }
+
             // need to remove the preserved files so that we can switch branches
             var files = run.job.preservedFiles.map(function (item) {
               return utils.format("%s/%s", repo_loc, item.name);

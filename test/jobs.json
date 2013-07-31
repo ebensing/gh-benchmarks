@@ -30,7 +30,13 @@
       "saveLoc" : ".",
       "alerts" : [
         { "type" : "std-dev", "taskTitle" : "performance", "field" : "value1" }
-      ]
+      ],
+      "preservedFiles" : {
+        "refs" : [ "test-tag" ],
+        "files" : [
+          { "branch" : "gh-pages", "name" : "data.json" }
+        ]
+      }
     }
   ]
 }

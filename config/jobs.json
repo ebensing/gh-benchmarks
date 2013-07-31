@@ -93,6 +93,7 @@
       "projectName" : "dotfiles",
       "repoUrl" : "https://github.com/ebensing/dotfiles",
       "ref" : "master",
+      "tags" : [ "test-tag" ],
       "tasks" : [
         { "title" : "insert", "command" : "node test.js" },
         { "title" : "update", "command" : "node test.js" }
@@ -109,9 +110,12 @@
       "after" : "node after.js",
       "saveBranch" : "gh-pages",
       "saveLoc" : ".",
-      "preservedFiles" : [
-        { "branch" : "gh-pages", "name" : "data.json" }
-      ],
+      "preservedFiles" : { 
+        "refs" : [ "test-tag" ], 
+        "files" : [
+          { "branch" : "gh-pages", "name" : "data.json" }
+        ] 
+      },
       "alerts" : [
         { "taskTitle" : "insert", "field" : "stats.hz", "type" : "std-dev" }
       ]
