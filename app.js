@@ -163,7 +163,7 @@ mongoose.connect(config.mongoDBuri, function () {
           }, function (repo_loc, callback) {
             // copy in all of the preservedFiles
 
-            async.each(run.job.preservedFiles, function (item, pcb) {
+            async.each(run.job.preservedFiles.files, function (item, pcb) {
               var dir = utils.format("%s/%s", repo_loc, path.dirname(item.name));
 
               mkdirp(dir, function (err) {
