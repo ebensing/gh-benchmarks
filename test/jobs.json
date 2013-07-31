@@ -5,7 +5,7 @@
       "projectName" : "gh-benchmarks test",
       "repoUrl" : "https://github.com/ebensing/gh-benchmarks-test",
       "ref" : "master",
-      "tags" : [ "test-tag" ]
+      "tags" : [ "test-tag" ],
       "tasks" : [
         { "title" : "performance", "command" : "node benchmarks.js" }
       ],
