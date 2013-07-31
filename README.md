@@ -31,7 +31,7 @@ your gh-pages branch)
 Table of Contents
 ------------------
 
-- [Workflow](./gh-benchmarks#workflow)
+- [Workflow](#workflow)
 - [Installation](./gh-benchmarks#installation)
 - [Webhook](./gh-benchmarks#webhook)
 - [Configuration](./gh-benchmarks#configuration)
