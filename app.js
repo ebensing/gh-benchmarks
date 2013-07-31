@@ -416,7 +416,9 @@ mongoose.connect(config.mongoDBuri, function () {
           for (var x=0; x < tags.length; x++) {
             var tag = tags[x];
             var id = job.id.toString();
-            if (tagMap[id] && tagMap[id][tag] === undefined) {
+            // queue the run if either no tag runs for this job have been
+            // completed or if this particular tag has not been completed
+            if (!tagMap[id] || tagMap[id][tag] === undefined) {
               console.log("Tag: %s on Job: %s has not been run, adding to queue", tag, job.title);
               var run = new Run({
                 ts : new Date(),
