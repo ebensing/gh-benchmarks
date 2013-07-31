@@ -5,6 +5,7 @@
       "projectName" : "gh-benchmarks test",
       "repoUrl" : "https://github.com/ebensing/gh-benchmarks-test",
       "ref" : "master",
+      "tags" : [ "test-tag" ]
       "tasks" : [
         { "title" : "performance", "command" : "node benchmarks.js" }
       ],
@@ -30,35 +31,6 @@
       "alerts" : [
         { "type" : "std-dev", "taskTitle" : "performance", "field" : "value1" }
       ]
-    },
-    {
-      "title" : "Test Benchmarks: tag",
-      "projectName" : "gh-benchmarks test",
-      "repoUrl" : "https://github.com/ebensing/gh-benchmarks-test",
-      "ref" : "test-tag",
-      "isTag" : true,
-      "tasks" : [
-        { "title" : "performance", "command" : "node benchmarks.js" }
-      ],
-      "charts" : [
-        { "title" : "Master Performance: Bar", 
-          "type" : "multiBar", 
-          "config" : { "values" : [
-            { "taskTitle" : "performance", "field" : "value1" },
-            { "taskTitle" : "performance", "field" : "nested.value" }
-          ] }
-        },
-        { "title" : "Master Performance: Line", 
-          "type" : "line", 
-          "config" : { "lines" : [
-            { "taskTitle" : "performance", "field" : "value1" },
-            { "taskTitle" : "performance", "field" : "nested.value" }
-          ] }
-        }
-      ],
-      "before" : ["npm install -d"],
-      "saveBranch" : "gh-pages",
-      "saveLoc" : "."
     }
   ]
 }
