@@ -65,7 +65,7 @@ You need to have the following things installed on your system:
 1. [Node.js](http://nodejs.org/) (ver. > 10.0) (It should come with it, but
    make sure you get npm as well)
 2. [MongoDB](http://docs.mongodb.org/manual/installation/)
-3. [SendMail](http://www.sendmail.com/sm/open_source/)
+3. [Postfix](http://www.postfix.org/)
 4. [Git](https://help.github.com/articles/set-up-git#platform-all)
 5. After all of these dependencies have been installed, run `npm install -d`
    from the root directory of the project

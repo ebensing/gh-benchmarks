@@ -272,7 +272,7 @@ mongoose.connect(config.mongoDBuri, function () {
             });
           }, function (repo_loc, callback) {
             // get all of the data, the pass it into the grapher
-            var cond = { job : run.job.id };
+            var cond = { job : run.job.id, output : { $exists : true } };
             var opts = { sort : '-ts' };
             Run.find(cond, {}, opts, function (err, runs) {
               if (err) return callback(err);
@@ -391,61 +391,76 @@ mongoose.connect(config.mongoDBuri, function () {
     }, 3);
 
     // check for the tags and make sure they've all been run
-    JobDesc.find({ isTag : true }, function (err, jobs) {
+    JobDesc.find({ tags : { $exists : true } }, function (err, jobs) {
       if (err) return console.log(err);
-      Run.find({ $or : [ { status : "success"}, { status : "error" }]}).distinct('job', function (err, ids) {
+      // get all of the runs for tags
+      var conds = { $or : [ { status : "success"}, { status : "error" }],
+                    tagName : { $exists : true }};
+      Run.find(conds, function (err, tagRuns) {
         if (err) return console.log(err);
 
-        var idMap = {};
-        for (var i=0; i < ids.length; i++) {
-          idMap[ids[i].toString()] = 1;
+        // create a map of the jobs & tags so that we can easily find tags that
+        // have not been run yet
+        var tagMap = {};
+        for (var i=0; i < tagRuns.length; i++) {
+          var tr = tagRuns[i];
+          if (tagMap[tr.job.toString()] === undefined) tagMap[tr.job.toString()] = {};
+
+          tagMap[tr.job.toString()][tr.tagName] = 1;
         }
         var l = jobs.length;
         for (var i=0; i < l; i++) {
           var job = jobs[i];
+          var tags = job.tags;
 
-          if (idMap[job.id.toString()] === undefined) {
-            var run = new Run({
-              ts : new Date(),
-              job : job.id,
-              status : 'pending',
-            });
+          for (var x=0; x < tags.length; x++) {
+            var tag = tags[x];
 
-            // time to get the head commit
-            var repo = job.repoUrl.replace(config.githubUri,"");
-            if (repo[repo.length -1] == "/") repo = repo.substr(0, repo.length - 1);
-            var options = {
-              host : config.githubApiUri,
-              path : utils.format("/repos/%s/git/refs/tags/%s", repo, job.ref),
-              method : "GET"
-            };
-
-            var req = https.request(options, function (res) {
-              var data = "";
-              res.on('data', function (d) {
-                data += d.toString();
+            if (tagMap[job.id.toString()][tag] === undefined) {
+              console.log("Tag: %s on Job: %s has not been run, adding to queue", tag, job.title);
+              var run = new Run({
+                ts : new Date(),
+                job : job.id,
+                status : 'pending',
+                tagName : tag
               });
 
-              res.on('end', function () {
-                var obj = JSON.parse(data);
-                // if it has a message property, then no such ref exists
-                if (obj.message) {
-                  run.error = new Error("ref does not exist");
-                  run.status = "error";
-                  run.finished = new Date();
-                  return run.save(function (err) {
-                    if (err) return console.log(err);
-                  });
-                }
+              // time to get the head commit
+              var repo = job.repoUrl.replace(config.githubUri,"");
+              if (repo[repo.length -1] == "/") repo = repo.substr(0, repo.length - 1);
+              var options = {
+                host : config.githubApiUri,
+                path : utils.format("/repos/%s/git/refs/tags/%s", repo, job.ref),
+                method : "GET"
+              };
 
-                run.lastCommit = obj.object.sha;
-                run.save(function (err) {
-                  if (err) return console.log(err);
-                  runQ.push(run);
+              var req = https.request(options, function (res) {
+                var data = "";
+                res.on('data', function (d) {
+                  data += d.toString();
+                });
+
+                res.on('end', function () {
+                  var obj = JSON.parse(data);
+                  // if it has a message property, then no such ref exists
+                  if (obj.message) {
+                    run.error = new Error("ref does not exist");
+                    run.status = "error";
+                    run.finished = new Date();
+                    return run.save(function (err) {
+                      if (err) return console.log(err);
+                    });
+                  }
+
+                  run.lastCommit = obj.object.sha;
+                  run.save(function (err) {
+                    if (err) return console.log(err);
+                    runQ.push(run);
+                  });
                 });
               });
-            });
-            req.end();
+              req.end();
+            }
           }
         }
       });

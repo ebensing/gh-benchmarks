@@ -7,7 +7,6 @@ var JobDesc = new Schema({
     repoUrl : String,
     cloneUrl : String,
     ref : String,
-    isTag : Boolean,
     tasks: [{ title : String, command : String }],
     charts: [{ title : String, type : { type : String }, config : {}}],
     before: [String],
@@ -28,7 +27,8 @@ var Run = new Schema({
     lastCommit : String,
     finished : Date,
     error : {},
-    output : {}
+    output : {},
+    tagName : String
 });
 
 var TaskRun = new Schema({
