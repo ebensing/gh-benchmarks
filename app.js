@@ -161,6 +161,13 @@ mongoose.connect(config.mongoDBuri, function () {
             });
 
           }, function (repo_loc, callback) {
+            // check if we need to do this step
+            var searchName = run.tagName || run.job.ref;
+
+            if (run.job.perservedFiles && run.job.perservedFiles.refs.indexOf(searchName) == -1) {
+              return callback(null, repo_loc);
+            }
+
             // copy in all of the preservedFiles
 
             async.each(run.job.preservedFiles.files, function (item, pcb) {
