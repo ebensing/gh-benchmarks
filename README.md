@@ -106,6 +106,13 @@ server.js
 * *port* - The port for the server to run on. Defaults to 8080
 * *mongoDBuri* - The uri of the mongoDB instance that the system should connect
   to. Defaults to localhost
+* *githubUri* - Github URL. You can change this if you happen to be running
+  your own instance of Github
+* *githubApiUri* - Github API URL
+* *jobsFile* - This is the JSON file which contains all of your job data, by
+  default this is `config/jobs.json`
+* *emailFile* - This is the JSON file which contains the email configuration
+  information
 
 email.json
 --------------------
@@ -141,8 +148,8 @@ you don't know what this means, take a look at the examples
   cloneUrl : "git@github.com:LearnBoost/mongoose.git",
   // This is the branch or tag name that the job should watch for
   ref : "master",
-  // This tells us whether the ref is a tag
-  isTag : false,
+  // tags to run these tests on
+  tags : [ "3.6.15", "3.6.14" ],
   // These are the commands to run before the tasks run
   before : ["npm install -d"],
   // These are the benchmark tasks to run
@@ -165,10 +172,19 @@ you don't know what this means, take a look at the examples
   // These are files you could like to have from other branches when you
   // run your benchmarks. These are particularly useful if you are trying to
   // run benchmarks on old tags that do not have the benchmark code in their
-  // version of the repository 
-  preservedFiles : [
-    { "branch" : "benchmarks", "name" : "benchmarks/main.js" }
-  ]
+  // version of the repository. 
+  // refs - these are the refs where the files should be preserved. These
+  //        values can be any tag name or the name on the ref property
+  // files - These are the actual files to preserve
+  //
+  // In this example, only the run on the 3.6.15 tag will have the files
+  // preserved, all other runs will not have access to the files specified below
+  preservedFiles : {
+    refs : [ "3.6.15" ],
+    files : [
+      { "branch" : "benchmarks", "name" : "benchmarks/main.js" }
+    ]
+  }
 }
 ```
 
@@ -198,16 +214,15 @@ benchmarks on a private repository.
 
 ref - String
 --------------------
-This is the ref name for what should be watched. (ref name can be either a tag
-or a branch name) At startup, the system checks to see if any tags have not be
-run to completion (meaning success or failure). If it has not, then the system
-will run the benchmarks. For branches, the system will listen for push webhooks
-from Github and run the benchmarks if it is for a branch that we are interested
-in.
+This is the ref name for what should be watched. The system will listen for
+push webhooks from Github and run the benchmarks if it is for a branch that we
+are interested in.
 
-isTag - Boolean
+tags - Array of Strings
 --------------------
-If the ref refers to a tag, this should be set to `true`
+These are the tags to run these commands on. The system will check to see if a
+run has either failed or succeeded for each of these at startup. If one has
+not, then it will run them.
 
 before - Array of Strings
 --------------------
@@ -382,9 +397,15 @@ saveLoc - String
 This is the location in the repository to save the generated files. This should
 be a path relative to your repository root.
 
-preservedFiles - Array of Files
+preservedFiles - Object
 --------------------
-This is an array of files to make available to the repo before running the tasks. Each takes the following form:
+This is an object that has a list of files to make available and the list of
+refs for which to make them available.
+
+Each ref name should either be found on the `ref` property of the job or in the
+`tags` array.
+
+Each file takes the following form:
 
 ```javascript
 { branch "benchmarks", "benchmarks/inserts.js" }
@@ -410,7 +431,7 @@ A grapher module must export 1 method, `buildGraphs`
 
 `exports.buildGraphs = function (runs, job, repo_loc, callback) {`
 
-buildGraphs will recieve the following parameters:
+buildGraphs will receive the following parameters:
 
 1. runs - This is an array of the mongoose objects that represent a run. Their
    schema can be found in
