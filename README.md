@@ -379,7 +379,8 @@ configuration would look like:
 
 As mentioned in the output script, it is highly recommended to keep the output
 in the same format. This is because the grapher essentially graphs its values
-using code like this `Object.byString(run.output[taskTitle], field)`
+using code like this: `Object.byString(run.output[taskTitle], field)`
+
 `Object.byString` is a function that can get nested reference by using a
 string. So, these are all valid field values : `"prop.anotherprop.thing"`,
 `"prop[0].thing"`, and `"thing"`. Keep this in mind when doing post-processing
