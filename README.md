@@ -408,7 +408,7 @@ refs for which to make them available.
   preservedFiles : {
     refs : [ "ref-name", "tag1-name" ],
     files : [
-      { branch "benchmarks", "benchmarks/inserts.js" }
+      { branch : "benchmarks", name : "benchmarks/inserts.js" }
     ]
   }
 ...
@@ -421,7 +421,7 @@ Each ref name should either be found on the `ref` property of the job or in the
 Each file takes the following form:
 
 ```javascript
-{ branch "benchmarks", "benchmarks/inserts.js" }
+{ branch : "benchmarks", name : "benchmarks/inserts.js" }
 ```
 
 These are only other files in the repository. This feature is meant to allow
