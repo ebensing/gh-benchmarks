@@ -277,7 +277,7 @@ mongoose.connect(config.mongoDBuri, function () {
             }
 
             // need to remove the preserved files so that we can switch branches
-            var files = run.job.preservedFiles.map(function (item) {
+            var files = run.job.preservedFiles.files.map(function (item) {
               return utils.format("%s/%s", repo_loc, item.name);
             });
 
