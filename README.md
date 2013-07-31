@@ -402,6 +402,19 @@ preservedFiles - Object
 This is an object that has a list of files to make available and the list of
 refs for which to make them available.
 
+```javascript
+{
+...
+  preservedFiles : {
+    refs : [ "ref-name", "tag1-name" ],
+    files : [
+      { branch "benchmarks", "benchmarks/inserts.js" }
+    ]
+  }
+...
+}
+```
+
 Each ref name should either be found on the `ref` property of the job or in the
 `tags` array.
 
