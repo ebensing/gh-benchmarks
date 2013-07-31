@@ -29,7 +29,7 @@
       "projectName" : "Mongoose",
       "repoUrl" : "https://github.com/LearnBoost/mongoose",
       "ref" : "master",
-      "tags" : [ "3.6.x", "2.7.x" ]
+      "tags" : [ "3.6.x", "2.7.x" ],
       "tasks" : [
         { "title" : "insert", "command" : "node test.js" },
         { "title" : "delete", "command" : "node test.js" },

@@ -415,8 +415,8 @@ mongoose.connect(config.mongoDBuri, function () {
 
           for (var x=0; x < tags.length; x++) {
             var tag = tags[x];
-
-            if (tagMap[job.id.toString()][tag] === undefined) {
+            var id = job.id.toString();
+            if (tagMap[id] && tagMap[id][tag] === undefined) {
               console.log("Tag: %s on Job: %s has not been run, adding to queue", tag, job.title);
               var run = new Run({
                 ts : new Date(),
