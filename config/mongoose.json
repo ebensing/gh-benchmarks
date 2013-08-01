@@ -6,6 +6,7 @@
       "repoUrl" : "https://github.com/10gen-interns/mongoose",
       "cloneUrl" : "git@github.com:10gen-interns/mongoose.git",
       "ref" : "benchmarking",
+      "tags" : [ "3.6.12" ]
       "tasks" : [
         { "title" : "insert", "command" : "node benchmarks/basic/insert.js" },
         { "title" : "delete", "command" : "node benchmarks/basic/remove.js" },

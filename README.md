@@ -38,7 +38,7 @@ Table of Contents
   - [server.js](#serverjs)
   - [email.json](#emailjson)
   - [jobs.json](#jobsjson)
-- [Job](#job)
+- [Job Example](#job)
 - [Job Fields](#job-fields)
   - [title](#title---string)
   - [projectName](#projectname---string)
