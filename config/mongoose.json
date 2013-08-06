@@ -5,70 +5,79 @@
       "projectName" : "Mongoose",
       "repoUrl" : "https://github.com/10gen-interns/mongoose",
       "cloneUrl" : "git@github.com:10gen-interns/mongoose.git",
-      "ref" : "benchmarking",
-      "tags" : [ "3.6.12" ]
+      "ref" : "master",
+      "tags" : [ "3.6.15", "3.6.14", "3.6.13", "2.7.0" ]
       "tasks" : [
-        { "title" : "insert", "command" : "node benchmarks/basic/insert.js" },
-        { "title" : "delete", "command" : "node benchmarks/basic/remove.js" },
-        { "title" : "update", "command" : "node benchmarks/basic/update.js" },
-        { "title" : "read", "command" : "node benchmarks/basic/read.js" }
+        { "title" : "insert", "command" : "node benchmarks/benchjs/insert.js" },
+        { "title" : "delete", "command" : "node benchmarks/benchjs/remove.js" },
+        { "title" : "update", "command" : "node benchmarks/benchjs/update.js" },
+        { "title" : "read", "command" : "node benchmarks/benchjs/read.js" }
       ],
       "charts" : [
         { "title" : "Master Performance: All Operations", 
           "type" : "multiBar", 
           "config" : { "values" : [
-              { "taskTitle" : "insert", "field" : "mongoose.dps" },
-              { "taskTitle" : "update", "field" : "mongoose.dps" },
-              { "taskTitle" : "delete", "field" : "mongoose.dps" },
-              { "taskTitle" : "read", "field" : "mongoose.dps" }
+              { "taskTitle" : "read", "field" : "Read-Mongoose-Basic.ops" },
+              { "taskTitle" : "update", "field" : "Update-Mongoose-Basic.ops" },
+              { "taskTitle" : "delete", "field" : "Delete-Mongoose.ops" },
+              { "taskTitle" : "insert", "field" : "Insert-Mongoose-Basic.ops" }
             ]
           }
         },
         { "title" : "Master Performance: All Operations", 
           "type" : "line", 
           "config" : { "lines" : [
-              { "taskTitle" : "insert", "field" : "mongoose.dps" },
-              { "taskTitle" : "update", "field" : "mongoose.dps" },
-              { "taskTitle" : "delete", "field" : "mongoose.dps" },
-              { "taskTitle" : "read", "field" : "mongoose.dps" }
+              { "taskTitle" : "read", "field" : "Read-Mongoose-Basic.ops" },
+              { "taskTitle" : "update", "field" : "Update-Mongoose-Basic.ops" },
+              { "taskTitle" : "delete", "field" : "Delete-Mongoose.ops" },
+              { "taskTitle" : "insert", "field" : "Insert-Mongoose-Basic.ops" }
           ] }
         },
         { "title" : "Master Performance: Insert",
           "type" : "line",
           "config" : { "lines" : [
-              { "taskTitle" : "insert", "field" : "mongoose.dps" },
-              { "taskTitle" : "insert", "field" : "driver.dps" }
+              { "taskTitle" : "insert", "field" : "Insert-Mongoose-Basic.ops" },
+              { "taskTitle" : "insert", "field" : "Insert-Driver-Basic.ops" }
             ]
           }
         },
         { "title" : "Master Performance: Read",
           "type" : "line",
           "config" : { "lines" : [
-              { "taskTitle" : "read", "field" : "mongoose.dps" },
-              { "taskTitle" : "read", "field" : "driver.dps" }
+              { "taskTitle" : "read", "field" : "Read-Mongoose-Basic.ops" },
+              { "taskTitle" : "read", "field" : "Read-Driver-Basic.ops" }
             ]
           }
         },
         { "title" : "Master Performance: Delete",
           "type" : "line",
           "config" : { "lines" : [
-              { "taskTitle" : "delete", "field" : "mongoose.dps" },
-              { "taskTitle" : "delete", "field" : "driver.dps" }
+              { "taskTitle" : "delete", "field" : "Delete-Mongoose.ops" },
+              { "taskTitle" : "delete", "field" : "Delete-Driver.ops" }
             ]
           }
         },
         { "title" : "Master Performance: Update",
           "type" : "line",
           "config" : { "lines" : [
-              { "taskTitle" : "update", "field" : "mongoose.dps" },
-              { "taskTitle" : "update", "field" : "driver.dps" }
+              { "taskTitle" : "update", "field" : "Update-Mongoose-Basic.ops" },
+              { "taskTitle" : "update", "field" : "Update-Driver-Basic.ops" }
             ]
           }
         }
       ],
       "before" : ["npm install -d"],
       "saveBranch" : "gh-pages",
-      "saveLocation" : "benchmarks"
+      "saveLocation" : "benchmark",
+      "preservedFiles" : {
+        "refs" : [ "3.6.15", "3.6.14", "3.6.13", "2.7.0" ],
+        "files" : [
+          { "branch" : "master", "name" : "benchmarks/benchjs/delete.js" },
+          { "branch" : "master", "name" : "benchmarks/benchjs/insert.js" },
+          { "branch" : "master", "name" : "benchmarks/benchjs/read.js" },
+          { "branch" : "master", "name" : "benchmarks/benchjs/update.js" }
+        ]
+      }
     }
   ]
 }
