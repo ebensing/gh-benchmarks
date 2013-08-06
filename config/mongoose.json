@@ -9,7 +9,7 @@
       "tags" : [ "3.6.15", "3.6.14", "3.6.13", "2.7.0" ],
       "tasks" : [
         { "title" : "insert", "command" : "node benchmarks/benchjs/insert.js" },
-        { "title" : "delete", "command" : "node benchmarks/benchjs/remove.js" },
+        { "title" : "delete", "command" : "node benchmarks/benchjs/delete.js" },
         { "title" : "update", "command" : "node benchmarks/benchjs/update.js" },
         { "title" : "read", "command" : "node benchmarks/benchjs/read.js" }
       ],
