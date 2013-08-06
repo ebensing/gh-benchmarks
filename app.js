@@ -144,8 +144,8 @@ mongoose.connect(config.mongoDBuri, function () {
               var dir = utils.format("repos/.tmp/%s", path.dirname(item.name));
               mkdirp(dir, function(err) {
                 if (err) return pcb(err);
-                var command = utils.format("cp %s/%s %s/%s", repo_loc,
-                  item.name, dir, item.name);
+                var command = utils.format("cp %s/%s repos/.tmp/%s", repo_loc,
+                  item.name, item.name);
                 git.checkout_ref(repo_loc, item.branch, function (err) {
                   if (err) return pcb(err);
                   exec(command, pcb);
