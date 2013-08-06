@@ -11,7 +11,8 @@
     "async" : "*",
     "mkdirp" : "*",
     "email" : "*",
-    "gauss" : "*"
+    "gauss" : "*",
+    "gh-benchmarks-grapher" : "*"
   },
   "repository": {
     "type": "git",
