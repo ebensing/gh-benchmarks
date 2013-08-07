@@ -7,11 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies" : {
-    "mongoose" : "*",
-    "async" : "*",
-    "mkdirp" : "*",
-    "email" : "*",
-    "gauss" : "*",
+    "mongoose" : "3.7.0",
+    "async" : "0.2.9",
+    "mkdirp" : "0.3.5",
+    "email" : "0.2.6",
+    "gauss" : "0.2.8",
     "gh-benchmarks-grapher" : "*"
   },
   "repository": {
