@@ -1,8 +1,20 @@
 
 // this is where the logic to run all the Git commands will live
 
-var exec = require('child_process').exec;
+var exec_command = require('child_process').exec;
 var utils = require('util');
+
+// include the command that fails on the error message... Why isn't this
+// default behavior?
+function exec(command, callback) {
+  exec_command(command, function (err, stdout, stderr) {
+    if (err) {
+      err.command = command;
+      err.message += " Command: " + command;
+    }
+    return callback(err, stdout, stderr);
+  });
+}
 
 /**
  * clones a Git repo
