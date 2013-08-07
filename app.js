@@ -12,7 +12,7 @@ var https = require('https');
 var qs = require('querystring');
 var fs = require('fs');
 var utils = require('util');
-var exec = require('child_process').exec;
+var exec_command = require('child_process').exec;
 var spawn = require('child_process').exec;
 var path = require('path');
 
@@ -25,6 +25,18 @@ if (process.env.GH_DEV) {
 var models = require('./models.js');
 var git = require('./git.js');
 var gauss = require('gauss');
+
+// include the command that fails on the error message... Why isn't this
+// default behavior?
+function exec(command, callback) {
+  exec_command(command, function (err, stdout, stderr) {
+    if (err) {
+      err.command = command;
+      err.message += " Command: " + command;
+    }
+    return callback(err, stdout, stderr);
+  });
+}
 
 // for debugging
 //mongoose.set('debug', true);
