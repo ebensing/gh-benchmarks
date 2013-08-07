@@ -33,6 +33,8 @@ Table of Contents
 
 - [Workflow](#workflow)
 - [Installation](#installation)
+  - [Postfix Installation Notes](#postfix-installation-notes)
+- [Running gh-benchmarks](#running-gh-benchmarks)
 - [Webhook](#webhook)
 - [Configuration](#configuration)
   - [server.js](#serverjs)
@@ -126,7 +128,7 @@ necessarily the most robust way of doing things, but it is pretty simple.
 
 Probably Better: [upstart & monit](http://howtonode.org/deploying-node-upstart-monit)
 
-I like new and shiny things: [docker](http://www.docker.io/)
+"I like new and shiny things": [docker](http://www.docker.io/)
 
 Webhook
 --------------------
