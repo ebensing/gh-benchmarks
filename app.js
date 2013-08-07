@@ -450,6 +450,8 @@ mongoose.connect(config.mongoDBuri, function () {
         }
         var l = jobs.length;
         for (var i=0; i < l; i++) {
+          // careful to wrap these in closures to make sure that the index
+          // stays the same between callbacks
           (function(i) {
             var job = jobs[i];
             var tags = job.tags;
