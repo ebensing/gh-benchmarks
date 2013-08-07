@@ -114,6 +114,20 @@ note:
 2. Trying to send to gmail? [Look at this](http://www.solver.io/wp/2012/10/15/postfix-gmail-network-is-unreachable/)
 3. Look at the logs, they're helpful. /var/log/mail.log if you're on Ubuntu
 
+Running gh-benchmarks
+====================
+
+"Great, so how do I run this without leaving a terminal open all the time?" you
+might ask. Fear not! There are a couple options. You essentially just need to
+keep `node app.js` running.
+
+Easiest: [Supervisor](https://github.com/isaacs/node-supervisor) - This isn't
+necessarily the most robust way of doing things, but it is pretty simple.
+
+Probably Better: [upstart & monit](http://howtonode.org/deploying-node-upstart-monit)
+
+I like new and shiny things: [docker](http://www.docker.io/)
+
 Webhook
 --------------------
 In order to setup a webhook for your repository, do the following from your
