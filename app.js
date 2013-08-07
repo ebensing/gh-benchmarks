@@ -450,60 +450,64 @@ mongoose.connect(config.mongoDBuri, function () {
         }
         var l = jobs.length;
         for (var i=0; i < l; i++) {
-          var job = jobs[i];
-          var tags = job.tags;
+          (function(i) {
+            var job = jobs[i];
+            var tags = job.tags;
 
-          for (var x=0; x < tags.length; x++) {
-            var tag = tags[x];
-            var id = job.id.toString();
-            // queue the run if either no tag runs for this job have been
-            // completed or if this particular tag has not been completed
-            if (!tagMap[id] || tagMap[id][tag] === undefined) {
-              console.log("Tag: %s on Job: %s has not been run, adding to queue", tag, job.title);
-              var run = new Run({
-                ts : new Date(),
-                job : job.id,
-                status : 'pending',
-                tagName : tag
-              });
-
-              // time to get the head commit
-              var repo = job.repoUrl.replace(config.githubUri,"");
-              if (repo[repo.length -1] == "/") repo = repo.substr(0, repo.length - 1);
-              var options = {
-                host : config.githubApiUri,
-                path : utils.format("/repos/%s/git/refs/tags/%s", repo, run.tagName),
-                method : "GET"
-              };
-
-              var req = https.request(options, function (res) {
-                var data = "";
-                res.on('data', function (d) {
-                  data += d.toString();
-                });
-
-                res.on('end', function () {
-                  var obj = JSON.parse(data);
-                  // if it has a message property, then no such ref exists
-                  if (obj.message) {
-                    run.error = new Error("ref does not exist");
-                    run.status = "error";
-                    run.finished = new Date();
-                    return run.save(function (err) {
-                      if (err) return console.log(err);
-                    });
-                  }
-
-                  run.lastCommit = obj.object.sha;
-                  run.save(function (err) {
-                    if (err) return console.log(err);
-                    runQ.push(run);
+            for (var x=0; x < tags.length; x++) {
+              (function(x) {
+                var tag = tags[x];
+                var id = job.id.toString();
+                // queue the run if either no tag runs for this job have been
+                // completed or if this particular tag has not been completed
+                if (!tagMap[id] || tagMap[id][tag] === undefined) {
+                  console.log("Tag: %s on Job: %s has not been run, adding to queue", tag, job.title);
+                  var run = new Run({
+                    ts : new Date(),
+                    job : job.id,
+                    status : 'pending',
+                    tagName : tag
                   });
-                });
-              });
-              req.end();
+
+                  // time to get the head commit
+                  var repo = job.repoUrl.replace(config.githubUri,"");
+                  if (repo[repo.length -1] == "/") repo = repo.substr(0, repo.length - 1);
+                  var options = {
+                    host : config.githubApiUri,
+                    path : utils.format("/repos/%s/git/refs/tags/%s", repo, run.tagName),
+                    method : "GET"
+                  };
+
+                  var req = https.request(options, function (res) {
+                    var data = "";
+                    res.on('data', function (d) {
+                      data += d.toString();
+                    });
+
+                    res.on('end', function () {
+                      var obj = JSON.parse(data);
+                      // if it has a message property, then no such ref exists
+                      if (obj.message) {
+                        run.error = new Error("ref does not exist");
+                        run.status = "error";
+                        run.finished = new Date();
+                        return run.save(function (err) {
+                          if (err) return console.log(err);
+                        });
+                      }
+
+                      run.lastCommit = obj.object.sha;
+                      run.save(function (err) {
+                        if (err) return console.log(err);
+                        runQ.push(run);
+                      });
+                    });
+                  });
+                  req.end();
+                }
+              })(x);
             }
-          }
+          })(i);
         }
       });
     });
