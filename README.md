@@ -283,7 +283,7 @@ the after command. Command is a shell command to be run from the command line.
 It will be run from the root directory of your repository and it should produce
 JSON output on stdout to represent the data from that run.
 
-**NOTE:** The **fields** of the JSON output cannot contain **$** or **.** These
+**NOTE:** The **fields** of the JSON output cannot contain `$` or `.` These
 will cause errors.
 
 after - String
