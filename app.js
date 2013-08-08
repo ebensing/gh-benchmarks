@@ -16,6 +16,11 @@ var exec_command = require('child_process').exec;
 var spawn = require('child_process').exec;
 var path = require('path');
 
+// this is mainly used for the dockerization of the app
+if (process.env.GH_WD) {
+  process.chdir(process.env.GH_WD);
+}
+
 var config;
 if (process.env.GH_DEV) {
  config = require('./test/server.js');
