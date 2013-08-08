@@ -123,7 +123,7 @@ Running gh-benchmarks
 might ask. Fear not! There are a couple options. You essentially just need to
 keep `node app.js` running.
 
-Easiest: [Supervisor](https://github.com/isaacs/node-supervisor) - This isn't
+Easiest: [Forever](https://github.com/nodejitsu/forever) - This isn't
 necessarily the most robust way of doing things, but it is pretty simple.
 
 Probably Better: [upstart & monit](http://howtonode.org/deploying-node-upstart-monit)
