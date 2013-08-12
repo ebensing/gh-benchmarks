@@ -5,7 +5,7 @@
 var mongoose = require('mongoose');
 var async = require('async');
 var mkdirp = require('mkdirp');
-var email = require('email');
+var email = require('nodemailer');
 
 var http = require('http');
 var https = require('https');
@@ -65,6 +65,11 @@ Object.byString = function(o, s) {
 // the module that will do the graphing
 // this is where you change it if you want to use your own
 var grapher = require('gh-benchmarks-grapher');
+
+var smtpTransport = email.createTransport("SMTP", {
+  host : "localhost",
+  port : 25
+});
 
 mongoose.connect(config.mongoDBuri, function () {
   var JobDesc = mongoose.model('JobDesc', models.JobDesc);
@@ -608,13 +613,14 @@ mongoose.connect(config.mongoDBuri, function () {
         bodyTemplate += "Mean: %d\nStandard Deviation: %d\n Result: %d\n\n";
         bodyTemplate += "Check the full results on Github";
         var body = utils.format(bodyTemplate, job.projectName, job.ref, mean, stdev, mrVal);
-        var e = new email.Email({
-          to : emailConfig.to,
-          subject: title,
-          body: body
-        });
 
-        e.send(callback);
+        smtpTransport.sendMail({
+          from : emailConfig.from,
+          to : emailConfig.to.join(","),
+          subject : title,
+          text : body
+        }, callback);
+
       } else {
         // within a standard deviation, don't send an email
         callback();
@@ -649,16 +655,14 @@ function sendCompletionEmail(run, config) {
   bodyTemplate += "Here is the meta data on the run: \n\n %s \n\n";
   bodyTemplate += "Check the results on Github";
   var body = utils.format(bodyTemplate, run.job.projectName, run.job.ref, run.toString());
-  var e = new email.Email({
-    to : config.to,
-    subject: title,
-    body: body
-  });
 
-  e.send(function (err) {
-    if (err) {
-      console.log(err);
-    }
+  smtpTransport.sendMail({
+    from : config.from,
+    to : config.to.join(","),
+    subject : title,
+    text : body
+  }, function (err) {
+    if (err) console.log(err);
   });
 }
 
