@@ -15,6 +15,7 @@ var utils = require('util');
 var exec_command = require('child_process').exec;
 var spawn = require('child_process').exec;
 var path = require('path');
+var os = require('os');
 
 // this is mainly used for the dockerization of the app
 if (process.env.GH_WD) {
