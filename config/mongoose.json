@@ -6,7 +6,7 @@
       "repoUrl" : "https://github.com/10gen-interns/mongoose",
       "cloneUrl" : "git@github.com:10gen-interns/mongoose.git",
       "ref" : "master",
-      "tags" : [ "3.6.15", "3.6.14", "3.6.13", "2.7.0" ],
+      "tags" : [ "3.6.17", "3.6.16", "3.6.15", "3.5.16" ],
       "tasks" : [
         { "title" : "insert", "command" : "node benchmarks/benchjs/insert.js" },
         { "title" : "delete", "command" : "node benchmarks/benchjs/delete.js" },
@@ -153,7 +153,7 @@
       "saveBranch" : "gh-pages",
       "saveLocation" : "benchmark",
       "preservedFiles" : {
-        "refs" : [ "3.6.15", "3.6.14", "3.6.13", "2.7.0" ],
+        "refs" : [  "3.6.17", "3.6.16", "3.6.15", "3.5.16"  ],
         "files" : [
           { "branch" : "master", "name" : "benchmarks/benchjs/delete.js" },
           { "branch" : "master", "name" : "benchmarks/benchjs/insert.js" },
