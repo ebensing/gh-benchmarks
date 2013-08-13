@@ -58,7 +58,8 @@
                 "Insert-Mongoose-EmbeddedDocs.ops", "title" :
                   "Mongoose-EmbeddedDocs" },
               { "taskTitle" : "insert", "field" :
-                "Insert-Driver-EmbeddedDocs.ops", "Driver-EmbeddedDocs" }
+                "Insert-Driver-EmbeddedDocs.ops", "title" :
+                  "Driver-EmbeddedDocs" }
             ]
           }
         },
