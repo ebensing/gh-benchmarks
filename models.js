@@ -9,7 +9,12 @@ var JobDesc = new Schema({
     ref : String,
     tags : [String],
     tasks: [{ title : String, command : String }],
-    charts: [{ title : String, type : { type : String }, config : {}}],
+    charts: [{
+      title : String,
+      type : { type : String },
+      units : String,
+      config : {}
+    }],
     before: [String],
     after: String,
     saveBranch : { type : String, default : "gh-pages" },
