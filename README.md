@@ -33,6 +33,7 @@ Table of Contents
 
 - [Workflow](#workflow)
 - [Installation](#installation)
+  - [Git Configuration](#git-configuration)
   - [Postfix Installation Notes](#postfix-installation-notes)
 - [Running gh-benchmarks](#running-gh-benchmarks)
 - [Webhook](#webhook)
@@ -118,7 +119,7 @@ generated](https://help.github.com/articles/generating-ssh-keys) for the user
 that will run the program.
 
 Next, under the repo settings page, go to "Deploy Keys". This is where you will
-add the public key (found in $HOME/.ssh/id_rsa.pub of the user who will run the
+add the public key (found in `$HOME/.ssh/id_rsa.pub` of the user who will run the
 app)
 
 Finally, in order to accept the Github server signature and make sure
@@ -209,15 +210,15 @@ server.js
 email.json
 --------------------
 
-* *from* - {String} - This is the email address that the emails will have in
+* **from** - {String} - This is the email address that the emails will have in
   the `from` field 
-* *to* - {Array of Strings} - These are the email address that the
+* **to** - {Array of Strings} - These are the email address that the
   notifications will be sent to
 
 jobs.json
 --------------------
 
-* *jobs* - {Array of jobs} - This is the array of jobs that the server will
+* **jobs** - {Array of jobs} - This is the array of jobs that the server will
   run. The structure of a job is described below
 
 Job
