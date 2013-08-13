@@ -104,7 +104,26 @@ You need to have the following things installed on your system:
    from the root directory of the project
 
 And that's it! All of the necessary dependencies should be installed. Now, you
-just need to setup the config and webhook!
+just need to setup the config, webhook, and make sure Git is configured!
+
+Git Configuration
+--------------------
+
+In order for gh-benchmarks to function properly, you need to make sure the user
+that gh-benchmarks is running as has commit access on your repository. I will
+go over how to do this for Github.
+
+First, make sure you have [keys
+generated](https://help.github.com/articles/generating-ssh-keys) for the user
+that will run the program.
+
+Next, under the repo settings page, go to "Deploy Keys". This is where you will
+add the public key (found in $HOME/.ssh/id_rsa.pub of the user who will run the
+app)
+
+Finally, in order to accept the Github server signature and make sure
+everything is configured correctly, attempt to clone the repo using the **SSH**
+url.
 
 Postfix Installation Notes
 --------------------
@@ -129,6 +148,22 @@ necessarily the most robust way of doing things, but it is pretty simple.
 Probably Better: [upstart & monit](http://howtonode.org/deploying-node-upstart-monit)
 
 "I like new and shiny things": [docker](http://www.docker.io/)
+
+I have included a `Dockerfile` for gh-benchmarks that basically works. You do
+need to do a couple things to get it working for you though.
+
+First, you will need to find the IP that your docker0 interface is using. You
+can do this by running `ifconfig` and looking for the `docker0` entry. Copy
+this IP. You will need to replace the IP for `localhost` found in
+`docker/hosts`.
+
+Additionally, this image does not have MongoDB on it. That will still need to
+be on the host system. You will need to have appropriately configured SSH keys
+on the host server as well. Check the section above on "Git Configuration" for
+more details.
+
+This Dockerfile is experimental and not officially supported, use at your own
+discretion.
 
 Webhook
 --------------------
@@ -160,15 +195,15 @@ two JSON files and on javascript file.
 server.js
 --------------------
 
-* *port* - The port for the server to run on. Defaults to 8080
-* *mongoDBuri* - The uri of the mongoDB instance that the system should connect
+* **port** - The port for the server to run on. Defaults to 8080
+* **mongoDBuri** - The uri of the mongoDB instance that the system should connect
   to. Defaults to localhost
-* *githubUri* - Github URL. You can change this if you happen to be running
+* **githubUri** - Github URL. You can change this if you happen to be running
   your own instance of Github
-* *githubApiUri* - Github API URL
-* *jobsFile* - This is the JSON file which contains all of your job data, by
+* **githubApiUri** - Github API URL
+* **jobsFile** - This is the JSON file which contains all of your job data, by
   default this is `config/jobs.json`
-* *emailFile* - This is the JSON file which contains the email configuration
+* **emailFile** - This is the JSON file which contains the email configuration
   information
 
 email.json
