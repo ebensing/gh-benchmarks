@@ -83,7 +83,8 @@
           "type" : "line",
           "config" : { "lines" : [
               { "taskTitle" : "update", "field" : "Update-Mongoose-popandpush.ops" },
-              { "taskTitle" : "update", "field" : "Update-Mongoose-ArrayManipulation,parallelops.ops" }
+              { "taskTitle" : "update", 
+                "field" : "Update-Mongoose-ArrayManipulation,parallelops.ops" }
             ]
           }
         },
@@ -125,7 +126,7 @@
             ]
           }
         },
-        { "title" : "Master Performance: Multiple Operations",
+        { "title" : "Master Performance: Multiple Operations - Basic",
           "type" : "line",
           "config" : { "lines" : [
               { "taskTitle" : "multiop", "field" : "Multi-Op-Mongoose-HeavyRead,lowwrite.ops" },
@@ -133,7 +134,13 @@
               { "taskTitle" : "multiop", "field" : "Multi-Op-Mongoose-EmdeddedDocs-HeavyRead,lowwrite.ops" },
               { "taskTitle" : "multiop", "field" : "Multi-Op-Driver-EmbeddedDocs-HeavyRead,lowwrite.ops" },
               { "taskTitle" : "multiop", "field" : "Multi-Op-Mongoose-HeavyWrite,lowread.ops" },
-              { "taskTitle" : "multiop", "field" : "Multi-Op-Driver-HeavyWrite,lowread.ops" },
+              { "taskTitle" : "multiop", "field" : "Multi-Op-Driver-HeavyWrite,lowread.ops" }
+            ]
+          }
+        },
+        { "title" : "Master Performance: Multiple Operations - Embedded Docs",
+          "type" : "line",
+          "config" : { "lines" : [
               { "taskTitle" : "multiop", "field" : "Multi-Op-Mongoose-EmbeddedDocs-HeavyWrite,lowread.ops" },
               { "taskTitle" : "multiop", "field" : "Multi-Op-Driver-EmbeddedDocs-HeavyWrite,lowread.ops" },
               { "taskTitle" : "multiop", "field" : "Multi-Op-Mongoose-EmbeddedDocs-Read/write/update.ops" },
