@@ -32,7 +32,15 @@ var Run = new Schema({
     finished : Date,
     error : {},
     output : {},
-    tagName : String
+    tagName : String,
+    sysinfo : {
+      platform : String,
+      arch : String,
+      release : String,
+      mem : Number,
+      cpuCount : Number,
+      cpuVersion : String
+    }
 });
 
 var TaskRun = new Schema({

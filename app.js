@@ -145,6 +145,18 @@ mongoose.connect(config.mongoDBuri, function () {
             git.clone(run.job.cloneUrl, callback);
 
           }, function (repo_loc, callback) {
+            // collect information about host system
+            run.sysinfo.platform = os.platform();
+            run.sysinfo.arch = os.arch();
+            run.sysinfo.release = os.release();
+            run.sysinfo.mem = os.totalmem();
+            run.sysinfo.cpuCount = os.cpus().length;
+            run.sysinfo.cpuVersion = os.cpus()[0].model;
+            // don't bother saving these values to the DB yet. By the end of
+            // this the db will write back and these can piggyback along with
+            // that update
+            callback(null, repo_loc);
+          }, function (repo_loc, callback) {
             // handle the preserved files - these are files from a different
             // branch that you want available in your main branch. useful for
             // running benchmarks on old tags, ect
