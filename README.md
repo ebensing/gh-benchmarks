@@ -413,11 +413,12 @@ This is a set of bars per commit/tag.
 { 
   title : "Multi-Bar Title",
   type : "multiBar",
+  units : "english name for the units of measure",
   config : { values : [
-    { taskTitle : "title of the task", field : "field 1" },
-    { taskTitle : "title of the task", field : "field 2" },
-    { taskTitle : "title of the task", field : "field 3" },
-    { taskTitle : "title of the task", field : "field 4" }
+    { taskTitle : "title of the task", field : "field 1", title : "name on graph" },
+    { taskTitle : "title of the task", field : "field 2", title : "name on graph" },
+    { taskTitle : "title of the task", field : "field 3", title : "name on graph" },
+    { taskTitle : "title of the task", field : "field 4", title : "name on graph" }
   ] }
 }
 ```
@@ -431,9 +432,10 @@ configuration would look like:
 { 
   title : "Multi-Bar Title",
   type : "multiBar",
+  units : "ops per second",
   config : { values : [
-    { taskTitle : "insert", field : "ops" },
-    { taskTitle : "update", field : "ops" }
+    { taskTitle : "insert", field : "ops", title : "some english readable title" },
+    { taskTitle : "update", field : "ops", title : "some other readable thing" }
   ] }
 }
 ```
@@ -446,11 +448,12 @@ This is 1 or more lines graphed with the x-axis being commits/tags.
 { 
   title : "Line Title",
   type : "line",
+  units : "english name for the units of measure",
   config : { lines : [
-    { taskTitle : "title of the task", field : "field 1" },
-    { taskTitle : "title of the task", field : "field 2" },
-    { taskTitle : "title of the task", field : "field 3" },
-    { taskTitle : "title of the task", field : "field 4" }
+    { taskTitle : "title of the task", field : "field 1", title : "name on graph" },
+    { taskTitle : "title of the task", field : "field 2", title : "name on graph" },
+    { taskTitle : "title of the task", field : "field 3", title : "name on graph" },
+    { taskTitle : "title of the task", field : "field 4", title : "name on graph" }
   ] }
 }
 ```
@@ -464,9 +467,10 @@ configuration would look like:
 { 
   title : "Line Title",
   type : "line",
+  units : "ops per second",
   config : { lines : [
-    { taskTitle : "insert", field : "ops" },
-    { taskTitle : "insert", field : "ops" }
+    { taskTitle : "insert", field : "ops", title : "some english readable title" },
+    { taskTitle : "insert", field : "ops", title : "some english readable title" }
   ] }
 }
 ```
