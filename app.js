@@ -541,9 +541,10 @@ mongoose.connect(config.mongoDBuri, function () {
     http.createServer(function (req, res) {
       // make sure things are coming from GitHub.. although these can be spoofed by
       // somebody if they really wanted to
-      if (req.headers['user-agent'].indexOf("GitHub Hookshot") == -1 ||
-          !req.headers['x-github-delivery'] || !req.headers['x-github-event']
-          || req.method != 'POST') {
+      if (( req.headers['user-agent'] &&
+          req.headers['user-agent'].indexOf("GitHub Hookshot") == -1) ||
+        !req.headers['x-github-delivery'] || !req.headers['x-github-event'] ||
+        req.method != 'POST') {
         res.write("Only Accept requests from Github\n");
         res.statysCode = 505;
         return res.end();
