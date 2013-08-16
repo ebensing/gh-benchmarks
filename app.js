@@ -16,6 +16,7 @@ var exec_command = require('child_process').exec;
 var spawn = require('child_process').exec;
 var path = require('path');
 var os = require('os');
+var url = require('url');
 
 // this is mainly used for the dockerization of the app
 if (process.env.GH_WD) {
@@ -598,6 +599,49 @@ mongoose.connect(config.mongoDBuri, function () {
       });
     }).listen(config.port, function () {
       console.log("Now listening on port %d", config.port);
+    });
+    // this will be used for any clean up commands that the user might want to
+    // run
+    http.createServer(function (req, res) {
+      var query = url.prase(req.url, true).query;
+
+      res.writeHead(200, { "Content-Type" : "text/plain" });
+
+      if (query.command) {
+        if (query.command == "runFailed") {
+          var cond = { $or : [{ status : "pending"}, { status : "error" }] };
+          Run.find(cond, function (err, runs) {
+            if (err) {
+              console.log(err);
+              return res.end("Command Failed\n");
+            }
+            var ids = runs.map(function (item) {
+              return item.id;
+            });
+            TaskRun.remove({ _id : { $in : ids } }, function (err) {
+              if (err) {
+                console.log(err);
+                return res.end("Command Failed\n");
+              }
+
+              Task.update({ _id : { $in : ids } }, { status : "pending" },
+                { multi : true }, function (err) {
+                if (err) {
+                  console.log(err);
+                  return res.end("Command Failed\n");
+                }
+                for (var i=0; i < runs.length; i++) {
+                  runQ.push(runs[i]);
+                }
+                res.end("Command Succeeded\n");
+              });
+            });
+          });
+        }
+      }
+
+    }).listen(8081, function () {
+      console.log("Maintenance port listening on 8081");
     });
   });
 
