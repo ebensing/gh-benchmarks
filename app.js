@@ -253,8 +253,12 @@ mongoose.connect(config.mongoDBuri, function () {
 
                 tr.status = "success";
                 tr.rawOut = stdout.toString();
-                // parse the returned data and save it
-                tr.data = JSON.parse(stdout.toString());
+                try {
+                  // parse the returned data and save it
+                  tr.data = JSON.parse(stdout.toString());
+                } catch(err) {
+                  tr.rawOut += err.toString();
+                }
 
                 tr.save(cb);
               });
@@ -298,7 +302,12 @@ mongoose.connect(config.mongoDBuri, function () {
 
               // save the output
               proc.on('close', function (code) {
-                var outObj = JSON.parse(output);
+                var outObj;
+                try {
+                  outObj = JSON.parse(output);
+                } catch(err) {
+                  return callback(err);
+                }
 
                 run.output = outObj;
                 run.save(function (err) {
