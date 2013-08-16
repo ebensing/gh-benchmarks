@@ -60,6 +60,7 @@ Table of Contents
   - [saveBranch](#savebranch---string)
   - [saveLoc](#saveloc---string)
   - [preservedFiles](#preservedfiles---object)
+- [Admin Commands](#admin-commands)
 - [Extending the Charts](#extending-the-charts)
 
 Workflow
