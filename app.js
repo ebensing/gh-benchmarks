@@ -603,7 +603,7 @@ mongoose.connect(config.mongoDBuri, function () {
     // this will be used for any clean up commands that the user might want to
     // run
     http.createServer(function (req, res) {
-      var query = url.prase(req.url, true).query;
+      var query = url.parse(req.url, true).query;
 
       res.writeHead(200, { "Content-Type" : "text/plain" });
 
@@ -624,7 +624,7 @@ mongoose.connect(config.mongoDBuri, function () {
                 return res.end("Command Failed\n");
               }
 
-              Task.update({ _id : { $in : ids } }, { status : "pending" },
+              TaskRun.update({ _id : { $in : ids } }, { status : "pending" },
                 { multi : true }, function (err) {
                 if (err) {
                   console.log(err);
