@@ -259,6 +259,7 @@ mongoose.connect(config.mongoDBuri, function () {
                   tr.data = JSON.parse(stdout.toString());
                 } catch(err) {
                   tr.rawOut += err.toString();
+                  tr.status = "error";
                   allSucceed = false;
                 }
 
