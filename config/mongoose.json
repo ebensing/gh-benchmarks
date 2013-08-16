@@ -236,7 +236,7 @@
           }
         }
       ],
-      "before" : ["npm install -d"],
+      "before" : ["npm install -d", "npm install benchmark" ],
       "saveBranch" : "gh-pages",
       "saveLocation" : "benchmark",
       "preservedFiles" : {
