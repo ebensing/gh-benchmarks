@@ -46,6 +46,19 @@ function checkout_ref(repo_loc, ref, cb) {
 }
 
 /**
+ * Checkout a specific commit
+ *
+ * @param {String} repo_loc - location of the repo on disk
+ * @param {String} commit - sha of the commit
+ * @param {Function} cb - callback
+ */
+
+function checkout_commit(repo_loc, commit, cb) {
+  var command = utils.format("cd %s && git checkout %s", repo_loc, commit);
+  exec(command, cb);
+}
+
+/**
  * Pushes a specific branch to a specific remote
  *
  * @param {String} repo_loc - location of the repo on disk
@@ -113,3 +126,5 @@ exports.add_files = add_files;
 exports.commit_repo = commit_repo;
 
 exports.push_repo = push_repo;
+
+exports.checkout_commit = checkout_commit;
