@@ -193,7 +193,7 @@ mongoose.connect(config.mongoDBuri, function () {
           }, function (repo_loc, callback) {
 
             // switch to the correct ref
-            git.checkout_ref(repo_loc, run.job.ref, function (err) {
+            git.checkout_ref(repo_loc, run.lastCommit, function (err) {
               callback(err, repo_loc);
             });
 
