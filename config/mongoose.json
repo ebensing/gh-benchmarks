@@ -8,13 +8,13 @@
       "ref" : "master",
       "tags" : [ "3.6.17", "3.6.16", "3.6.15", "3.5.16", "3.7.0", "3.7.1" ],
       "tasks" : [
-        { "title" : "insert", "command" : "node benchmarks/benchjs/insert.js" },
-        { "title" : "delete", "command" : "node benchmarks/benchjs/delete.js" },
-        { "title" : "update", "command" : "node benchmarks/benchjs/update.js" },
-        { "title" : "read", "command" : "node benchmarks/benchjs/read.js" },
-        { "title" : "casting", "command" : "node benchmarks/benchjs/casting.js" },
-        { "title" : "population", "command" : "node benchmarks/benchjs/population.js" },
-        { "title" : "multiop", "command" : "node benchmarks/benchjs/multiop.js" }
+        { "title" : "insert", "command" : "export MONGOOSE_DISABLE_STABILITY_WARNING='true' && node benchmarks/benchjs/insert.js" },
+        { "title" : "delete", "command" : "export MONGOOSE_DISABLE_STABILITY_WARNING='true' && node benchmarks/benchjs/delete.js" },
+        { "title" : "update", "command" : "export MONGOOSE_DISABLE_STABILITY_WARNING='true' && node benchmarks/benchjs/update.js" },
+        { "title" : "read", "command" : "export MONGOOSE_DISABLE_STABILITY_WARNING='true' && node benchmarks/benchjs/read.js" },
+        { "title" : "casting", "command" : "export MONGOOSE_DISABLE_STABILITY_WARNING='true' && node benchmarks/benchjs/casting.js" },
+        { "title" : "population", "command" : "export MONGOOSE_DISABLE_STABILITY_WARNING='true' && node benchmarks/benchjs/population.js" },
+        { "title" : "multiop", "command" : "export MONGOOSE_DISABLE_STABILITY_WARNING='true' && node benchmarks/benchjs/multiop.js" }
       ],
       "charts" : [
         { "title" : "Master Performance: All Operations", 
