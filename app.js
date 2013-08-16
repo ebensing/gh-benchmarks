@@ -266,7 +266,7 @@ mongoose.connect(config.mongoDBuri, function () {
               });
             }, function (err) {
               if (err || !allSucceed) {
-                return callback(err || new Error("One or more Tasks failed."));
+                return callback(err || new Error("One or more Tasks failed."), repo_loc);
               }
 
               callback(err, repo_loc);
