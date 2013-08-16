@@ -377,7 +377,6 @@ mongoose.connect(config.mongoDBuri, function () {
           }
         ], function (err, repo_loc) {
           if (err) {
-            console.log(err);
             run.status = "error";
             run.error = err;
             run.finished = new Date();
@@ -514,6 +513,7 @@ mongoose.connect(config.mongoDBuri, function () {
                     method : "GET"
                   };
 
+
                   var req = https.request(options, function (res) {
                     var data = "";
                     res.on('data', function (d) {
@@ -527,8 +527,11 @@ mongoose.connect(config.mongoDBuri, function () {
                         run.error = new Error("ref does not exist");
                         run.status = "error";
                         run.finished = new Date();
+                        console.log(run.error);
                         return run.save(function (err) {
-                          if (err) return console.log(err);
+                          if (err) {
+                            console.log(err);
+                          }
                         });
                       }
 
