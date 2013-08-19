@@ -353,45 +353,12 @@ mongoose.connect(config.mongoDBuri, function () {
               return callback(null, repo_loc);
             }
 
-            var repo = run.job.repoUrl.replace(config.githubUri,"");
-            if (repo[repo.length -1] == "/") repo = repo.substr(0, repo.length - 1);
-            var options = {
-              host : config.githubApiUri,
-              path : utils.format("/repos/%s/commits/%s", repo, run.lastCommit),
-              method : "GET"
-            };
-
-            var req = https.request(options, function (res) {
-              var data = "";
-
-              res.on('data', function (d) {
-                data += d.toString();
-              });
-
-              res.on('end', function () {
-                var respObj;
-                try {
-                  respObj = JSON.parse(data);
-                } catch (err) {
-                  return callback(err, repo_loc);
-                }
-
-                // if there is a message property, that is an error from Github
-                if (respObj.message) {
-                  return callback(new Error(respObj.message), repo_loc);
-                }
-
-                run.ts = respObj.commit.author.date;
-
-                run.save(function (err) {
-                  callback(err, repo_loc);
-                });
-              });
+            // this will query for the date on the commit and save the run
+            // before returning
+            getCommitDate(run, run.job, function (err) {
+              callback(err, repo_loc);
             });
-            req.on('error', function (err) {
-              return callback(err, repo_loc);
-            });
-            req.end();
+
           }, function (repo_loc, callback) {
             // get all of the data, the pass it into the grapher
             var cond = { job : run.job.id, output : { $exists : true } };
@@ -711,7 +678,8 @@ mongoose.connect(config.mongoDBuri, function () {
               status : 'pending',
               lastCommit : query.sha
             });
-            run.save(function (err) {
+
+            getCommitDate(run, job, function (err) {
               if (err) {
                 console.log(err);
                 return res.end("Command Failed\n");
@@ -814,4 +782,47 @@ function sendCompletionEmail(run, config) {
     if (err) console.log(err);
   });
 }
+/**
+ * This function is used for getting the actual commit date for the commit in
+ * question
+ *
+ */
+function getCommitDate(run, job, callback) {
+  var repo = job.repoUrl.replace(config.githubUri,"");
+  if (repo[repo.length -1] == "/") repo = repo.substr(0, repo.length - 1);
+  var options = {
+    host : config.githubApiUri,
+    path : utils.format("/repos/%s/commits/%s", repo, run.lastCommit),
+    method : "GET"
+  };
 
+  var req = https.request(options, function (res) {
+    var data = "";
+
+    res.on('data', function (d) {
+      data += d.toString();
+    });
+
+    res.on('end', function () {
+      var respObj;
+      try {
+        respObj = JSON.parse(data);
+      } catch (err) {
+        return callback(err, repo_loc);
+      }
+
+      // if there is a message property, that is an error from Github
+      if (respObj.message) {
+        return callback(new Error(respObj.message));
+      }
+
+      run.ts = respObj.commit.author.date;
+
+      run.save(callback);
+    });
+  });
+  req.on('error', function (err) {
+    return callback(err, repo_loc);
+  });
+  req.end();
+}
