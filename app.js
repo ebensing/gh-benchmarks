@@ -687,9 +687,12 @@ mongoose.connect(config.mongoDBuri, function () {
               runQ.push(run);
             });
           });
+        } else {
+          res.end('Unrecognized Command\n');
         }
+      } else {
+        res.end('No Command Specified\n');
       }
-
     }).listen(8081, function () {
       console.log("Maintenance port listening on 8081");
     });
