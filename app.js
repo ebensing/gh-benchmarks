@@ -689,6 +689,36 @@ mongoose.connect(config.mongoDBuri, function () {
               });
             });
           });
+        } else if (query.command == 'runCommit') {
+          if (!query.sha) {
+            console.log(new Error("Expecting 'sha' parameter for this command"));
+            return res.end("Command Failed: Missing Parameter 'sha'\n");
+          }
+          if (!query.jobTitle) {
+            console.log(new Error("Expecting 'jobTitle' parameter for this command"));
+            return res.end("Command Failed: Missing Parameter 'jobTitle'\n");
+          }
+
+          JobDesc.findOne({ title : query.jobTitle }, function (err, job) {
+            if (err) {
+              console.log(err);
+              return res.end("Command Failed\n");
+            }
+
+            var run = new Run({
+              ts : new Date(),
+              job : job.id,
+              status : 'pending',
+              lastCommit : query.sha
+            });
+            run.save(function (err) {
+              if (err) {
+                console.log(err);
+                return res.end("Command Failed\n");
+              }
+              runQ.push(run);
+            });
+          });
         }
       }
 
