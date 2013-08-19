@@ -347,6 +347,52 @@ mongoose.connect(config.mongoDBuri, function () {
               callback(err, repo_loc);
             });
           }, function (repo_loc, callback) {
+            // if we're on a tag, let's get the actual commit time stamp so
+            // that we can keep ordering nice
+            if (!run.tagName || run.tagName == '') {
+              return callback(null, repo_loc);
+            }
+
+            var repo = run.job.repoUrl.replace(config.githubUri,"");
+            if (repo[repo.length -1] == "/") repo = repo.substr(0, repo.length - 1);
+            var options = {
+              host : config.githubApiUri,
+              path : utils.format("/repos/%s/commits/%s", repo, run.lastCommit),
+              method : "GET"
+            };
+
+            var req = https.request(options, function (res) {
+              var data = "";
+
+              res.on('data', function (d) {
+                data += d.toString();
+              });
+
+              res.on('end', function () {
+                var respObj;
+                try {
+                  respObj = JSON.parse(data);
+                } catch (err) {
+                  return callback(err, repo_loc);
+                }
+
+                // if there is a message property, that is an error from Github
+                if (respObj.message) {
+                  return callback(new Error(respObj.message), repo_loc);
+                }
+
+                run.ts = respObj.commit.author.date;
+
+                run.save(function (err) {
+                  callback(err, repo_loc);
+                });
+              });
+            });
+            req.on('error', function (err) {
+              return callback(err, repo_loc);
+            });
+            req.end();
+          }, function (repo_loc, callback) {
             // get all of the data, the pass it into the grapher
             var cond = { job : run.job.id, output : { $exists : true } };
             var opts = { sort : '-ts' };
