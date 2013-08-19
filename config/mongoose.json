@@ -3,10 +3,10 @@
     {
       "title" : "Master Benchmarks: CRUD",
       "projectName" : "Mongoose",
-      "repoUrl" : "https://github.com/10gen-interns/mongoose",
-      "cloneUrl" : "git@github.com:10gen-interns/mongoose.git",
+      "repoUrl" : "https://github.com/LearnBoost/mongoose",
+      "cloneUrl" : "git@github.com:LearnBoost/mongoose.git",
       "ref" : "master",
-      "tags" : [ "3.6.17", "3.6.16", "3.6.15", "3.7.0", "3.7.1" ],
+      "tags" : [ "3.6.17", "3.6.16", "3.6.15", "3.7.2" ],
       "tasks" : [
         { "title" : "insert", "command" : "export MONGOOSE_DISABLE_STABILITY_WARNING='true' && node benchmarks/benchjs/insert.js" },
         { "title" : "delete", "command" : "export MONGOOSE_DISABLE_STABILITY_WARNING='true' && node benchmarks/benchjs/delete.js" },

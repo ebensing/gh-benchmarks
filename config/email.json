@@ -1,7 +1,7 @@
 {
-  "from" : "benchmarks@rm-dash-r.com",
+  "from" : "benchmarks@mongoose-benchmarks.com",
   "to" : [
-    "ebensing@rm-dash-r.com",
+    "ej.bensing@10gen.com",
     "aaron.heckmann@10gen.com"
   ]
 }

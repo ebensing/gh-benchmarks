@@ -246,6 +246,7 @@ mongoose.connect(config.mongoDBuri, function () {
                 });
 
                 if (err) {
+                  throw err;
                   tr.status = "error";
                   tr.rawOut = err.toString();
                   allSucceed = false;

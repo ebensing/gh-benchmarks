@@ -31,7 +31,7 @@ exports.githubApiUri = "api.github.com";
  * This is the file that contains the jobs
  */
 
-exports.jobsFile = "./config/jobs.json";
+exports.jobsFile = "./config/mongoose.json";
 
 /**
  * This is the file that contains the email config
