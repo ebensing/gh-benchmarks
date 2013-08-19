@@ -238,7 +238,7 @@
       ],
       "before" : ["npm install -d", "npm install benchmark" ],
       "saveBranch" : "gh-pages",
-      "saveLocation" : "benchmark",
+      "saveLoc" : "benchmarks",
       "preservedFiles" : {
         "refs" : [ ],
         "files" : [
@@ -483,7 +483,7 @@
       ],
       "before" : ["npm install -d", "npm install benchmark" ],
       "saveBranch" : "gh-pages",
-      "saveLocation" : "benchmark/3.6",
+      "saveLoc" : "benchmarks/3.6",
       "preservedFiles" : {
         "refs" : [ "3.6.15", "3.6.16", "3.6.17", "3.6.x" ],
         "files" : [
