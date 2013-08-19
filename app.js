@@ -671,6 +671,10 @@ mongoose.connect(config.mongoDBuri, function () {
               console.log(err);
               return res.end("Command Failed\n");
             }
+            if (job == null) {
+              console.log("Job: %s not found", query.jobTitle);
+              return res.end("Job not found\n");
+            }
 
             var run = new Run({
               ts : new Date(),
