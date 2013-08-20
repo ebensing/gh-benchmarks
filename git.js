@@ -33,6 +33,22 @@ function clone_repo(url, cb) {
 }
 
 /**
+ * clones a Git repo using https address
+ *
+ * @param {String} url - assumes it is a Github url
+ * @param {Function} cb - callback
+ */
+
+function clone_https_repo(url, cb) {
+  var repoName = url.replace("https://github.com","").replace(".git","").replace("/","-");
+  exec(utils.format("git clone %s repos/%s", url, repoName), function (err, stdout, stderr) {
+    if (err) return cb(err);
+
+    return cb(null, "repos/" + repoName);
+  });
+}
+
+/**
  * Checkout a specified ref
  *
  * @param {String} repo_loc - location of the repo on disk
@@ -128,3 +144,5 @@ exports.commit_repo = commit_repo;
 exports.push_repo = push_repo;
 
 exports.checkout_commit = checkout_commit;
+
+exports.clone_https = clone_https_repo;

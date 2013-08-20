@@ -902,7 +902,7 @@ function cloneAndRunPullRequest(pull_request, job, mainCB) {
 
   async.waterfall([
     function (callback) {
-      git.clone(pull_request.head.repo.clone_url, callback);
+      git.clone_https(pull_request.head.repo.clone_url, callback);
     }, function (repo_url, callback) {
       // switch to the correct commit
       git.checkout_commit(repo_loc, pull_request.head.sha, function (err) {
