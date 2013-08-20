@@ -129,6 +129,17 @@ mongoose.connect(config.mongoDBuri, function () {
       }
 
       if (job.watchPullRequests) {
+        // don't bother running these if we don't have github credentials to post with
+        if (!process.env.githubUsername || !process.env.githubPassword) {
+          return mainCB();
+        }
+        // setup auth now
+        github.authenticate({
+          type: "basic",
+          username : process.env.githubUsername,
+          password : process.env.githubPassword
+        });
+
         // setup the webhook for PRs now
         var repo = job.repoUrl.replace(config.githubUri, "").split("/");
         var msg = {
