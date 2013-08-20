@@ -675,7 +675,7 @@ mongoose.connect(config.mongoDBuri, function () {
               }
 
               reqJson.pull_request.PR = true;
-              reqJson.pull_request.job = job;
+              reqJson.pull_request.job = jd;
               runQ.push(reqJson.pull_request);
             });
           }
