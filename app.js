@@ -131,6 +131,7 @@ mongoose.connect(config.mongoDBuri, function () {
       if (job.watchPullRequests) {
         // don't bother running these if we don't have github credentials to post with
         if (!process.env.githubUsername || !process.env.githubPassword) {
+          console.log("No Github credentials provided, cannot create web hook");
           return mainCB();
         }
         // setup auth now

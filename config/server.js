@@ -39,3 +39,9 @@ exports.jobsFile = "./config/mongoose.json";
 
 exports.emailFile = "./config/email.json";
 
+/**
+ * This is the outside URL that you ping to access this service. Used for
+ * creating pull request web hook.
+ */
+
+exports.local_url = "http://54.221.203.72";
