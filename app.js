@@ -658,7 +658,7 @@ mongoose.connect(config.mongoDBuri, function () {
           // handle pull requests
           if (reqJson.action != 'closed') {
             var cond = {
-              repoUrl : reqJson.pull_request.repo.html_url,
+              repoUrl : reqJson.pull_request.base.repo.html_url,
               ref : reqJson.pull_request.base.ref
             };
             JobDesc.findOne(cond, function (err, jd) {
@@ -901,7 +901,7 @@ function cloneAndRunPullRequest(pull_request, job, mainCB) {
 
   async.waterfall([
     function (callback) {
-      git.clone(pull_request.repo.clone_url, callback);
+      git.clone(pull_request.head.repo.clone_url, callback);
     }, function (repo_url, callback) {
       // switch to the correct commit
       git.checkout_commit(repo_loc, pull_request.head.sha, function (err) {
