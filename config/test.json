@@ -1,0 +1,35 @@
+{
+  "jobs" : [
+    {
+      "title" : "Test Benchmarks",
+      "projectName" : "gh-benchmarks-test",
+      "repoUrl" : "https://github.com/ebensing/gh-benchmarks-test",
+      "ref" : "master",
+      "watchPullRequests" : true,
+      "tags" : [ "test-tag" ],
+      "tasks" : [
+        { "title" : "test1", "command" : "node benchmarks.js" },
+        { "title" : "test2", "command" : "node benchmarks.js" }
+      ],
+      "charts" : [
+        { "title" : "multiBar graph", "type" : "multiBar", 
+          "config" : { "values" : [
+              { "taskTitle" : "test1", "field" : "value1" },
+              { "taskTitle" : "test2", "field" : "nested.value" }
+            ] 
+          } 
+        }
+      ],
+      "before" : ["echo 'hello world!' > test1.txt", "touch test2"],
+      "saveBranch" : "gh-pages",
+      "saveLoc" : ".",
+      "preservedFiles" : { 
+        "refs" : [ ], 
+        "files" : [
+        ] 
+      },
+      "alerts" : [
+      ]
+    }
+  ]
+}

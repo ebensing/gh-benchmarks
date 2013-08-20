@@ -6,7 +6,7 @@
  * data.
  */
 
-exports.mongoDBuri = "mongodb://localhost/gh-benchmarks-test";
+exports.mongoDBuri = "mongodb://localhost/gh-benchmarks";
 
 
 /**
@@ -31,7 +31,7 @@ exports.githubApiUri = "api.github.com";
  * This is the file that contains the jobs
  */
 
-exports.jobsFile = "./config/test.json";
+exports.jobsFile = "./config/mongoose.json";
 
 /**
  * This is the file that contains the email config
