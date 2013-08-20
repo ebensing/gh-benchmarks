@@ -7,6 +7,8 @@ var JobDesc = new Schema({
     repoUrl : String,
     cloneUrl : String,
     ref : String,
+    watchPullRequests : Boolean,
+    pull_requests : [Number],
     tags : [String],
     tasks: [{ title : String, command : String }],
     charts: [{

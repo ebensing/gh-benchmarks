@@ -127,12 +127,51 @@ mongoose.connect(config.mongoDBuri, function () {
           });
         });
       }
+
+      if (job.watchPullRequests) {
+        // setup the webhook for PRs now
+        var repo = job.repoUrl.replace(config.githubUri, "").split("/");
+        var msg = {
+          user : repo[0],
+          repo : repo[1],
+          name : "web",
+          events : ["pull_request"],
+          config : {
+            url : config.local_url + ":" + config.port,
+            content_type : 'json'
+          }
+        };
+        github.repos.createHook(msg, function (err, hook) {
+          if (err) {
+            if (err.message) {
+              try {
+                err = JSON.parse(err.message);
+              } catch (e) {
+
+              }
+            }
+            if (err.errors && err.errors.length &&
+                err.errors[0].message != "Hook already exists on this repository") {
+              console.log(err);
+            }
+            return;
+          }
+          console.log("Pull request hook for %s has been created", job.title);
+        });
+      }
     });
   }, function (err) {
     if (err) throw err;
 
     // this is the queue that will actually process all of the benchmarks
     var runQ = async.queue(function (run, queueCallback) {
+      // if PR is set, this is actually a pull request, DO NOT USE THIS
+      // WORKFLOW. The only reason we're even putting it on this queue is to
+      // avoid having two things running simultaneously. Should probably
+      // refactor this and make the commit run workflow more modular
+      if (run.PR) {
+        return cloneAndRunPullRequest(run, job, queueCallback);
+      }
       run.populate('job', function (err) {
         if (err) {
           console.log(err);
@@ -566,32 +605,59 @@ mongoose.connect(config.mongoDBuri, function () {
       req.on('end', function () {
         // turn the data into an actual object that we can work with
         var reqJson = JSON.parse(qs.parse(reqData).payload);
-        var cond = {
-          repoUrl : reqJson.repository.url,
-          // we only need to remove the branches because a push notification
-          // will never be a tag
-          ref : reqJson.ref.replace("refs/heads/","")
-        };
-        JobDesc.findOne(cond, function (err, jd) {
-          if (err) {
-            console.log(err);
-            return;
+        // check if this is a pull request or push event
+        if (!reqJson.action && !reqJson.pull_request) {
+          var cond = {
+            repoUrl : reqJson.repository.url,
+            // we only need to remove the branches because a push notification
+            // will never be a tag
+            ref : reqJson.ref.replace("refs/heads/","")
+          };
+          JobDesc.findOne(cond, function (err, jd) {
+            if (err) {
+              console.log(err);
+              return;
+            }
+            // if we can't find a matching job, do nothing
+            if (!jd) return;
+
+            var run = new Run({
+              ts : new Date(),
+              job : jd.id,
+              status : 'pending',
+              lastCommit : reqJson.head_commit.id
+            });
+
+            // save the new task and put it on the queue
+            run.save(function (err) {
+              travisQ.push(run);
+            });
+          });
+        } else {
+          // handle pull requests
+          if (reqJson.action != 'closed') {
+            var cond = {
+              repoUrl : reqJson.pull_request.repo.html_url,
+              ref : reqJson.pull_request.base.ref
+            };
+            JobDesc.findOne(cond, function (err, jd) {
+              if (err) {
+                console.log(err);
+                return;
+              }
+              // if we can't find a matching job, do nothing
+              if (!jd) return;
+
+              if (!jd.watchPullRequests) {
+                // we're not supposed to watch these
+                return;
+              }
+
+              reqJson.pull_request.PR = true;
+              runQ.push(reqJson.pull_request);
+            });
           }
-          // if we can't find a matching job, do nothing
-          if (!jd) return;
-
-          var run = new Run({
-            ts : new Date(),
-            job : jd.id,
-            status : 'pending',
-            lastCommit : reqJson.head_commit.id
-          });
-
-          // save the new task and put it on the queue
-          run.save(function (err) {
-            travisQ.push(run);
-          });
-        });
+        }
 
         res.writeHead(200, "OK", {'Content-Type': 'text/html'});
         res.end();
@@ -802,5 +868,80 @@ function getCommitDate(run, job, callback) {
     run.ts = obj.commit.author.date;
 
     run.save(callback);
+  });
+}
+
+function cloneAndRunPullRequest(pull_request, job, mainCB) {
+
+  // don't bother running these if we don't have github credentials to post with
+  if (!process.env.githubUsername || !process.env.githubPassword) {
+    return mainCB();
+  }
+
+  async.waterfall([
+    function (callback) {
+      git.clone(pull_request.repo.clone_url, callback);
+    }, function (repo_url, callback) {
+      // switch to the correct commit
+      git.checkout_commit(repo_loc, pull_request.head.sha, function (err) {
+        callback(err, repo_loc);
+      });
+    }, function (repo_url, callback) {
+
+      var output = {};
+      // time to run the actual benchmarks
+      async.mapSeries(job.tasks, function (task, cb) {
+        var command = utils.format("cd %s && export PULL_REQUEST=true && %s",
+          repo_loc, task.command);
+        exec(command, cb);
+      }, function (err, output) {
+        if (err) {
+          return callback(err, repo_loc);
+        }
+
+        // build the string that gets posted to Github
+        var postStr = "Benchmarks for the pull request:\n";
+        for (var i=0; i < job.tasks.length; i++) {
+          var task = job.tasks[i];
+          postStr += "**" + task.title + "**\n";
+          postStr += "```";
+          postStr += output[i].toString();
+          postStr += "```\n\n";
+        }
+        callback(err, repo_loc, postStr);
+      });
+    }, function (repo_url, postStr, callback) {
+
+      // create the comment on the pull request. We use the issues API here
+      // because pull request comments refer specifically to the comments on
+      // pull request files.
+
+      // setup auth now
+      github.authenticate({
+        type: "basic",
+        username : process.env.githubUsername,
+        password : process.env.githubPassword
+      });
+      var msg = {
+        user : pull_request.base.user.login,
+        repo : pull_request.base.repo.name,
+        number : pull_request.number,
+        body : postStr
+      };
+
+      github.createComment(msg, function (err, comment) {
+        callback(err, repo_loc);
+      });
+    }, function (repo_loc, callback) {
+      job.pull_requests.push(pull_request.number);
+      job.save(function (err) {
+        callback(err, repo_loc);
+      });
+    }
+  ], function (err, repo_loc) {
+    if (err) {
+      console.log(err);
+    }
+    cleanup(err, repo_loc, mainCB);
   });
 }
