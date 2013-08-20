@@ -794,11 +794,12 @@ function getCommitDate(run, job, callback) {
     sha : run.lastCommit
   };
 
-  github.repos.getCommit(msg, function (err, commit) {
+  github.repos.getCommit(msg, function (err, obj) {
     if (err) {
       return callback(err);
     }
-    run.ts = commit.author.date;
+
+    run.ts = obj.commit.author.date;
 
     run.save(callback);
   });
