@@ -633,9 +633,11 @@ mongoose.connect(config.mongoDBuri, function () {
               console.log(err);
               return res.end("Command Failed\n");
             }
+
             var ids = runs.map(function (item) {
               return item.id;
             });
+
             TaskRun.remove({ _id : { $in : ids } }, function (err) {
               if (err) {
                 console.log(err);
@@ -648,9 +650,11 @@ mongoose.connect(config.mongoDBuri, function () {
                   console.log(err);
                   return res.end("Command Failed\n");
                 }
+
                 for (var i=0; i < runs.length; i++) {
                   runQ.push(runs[i]);
                 }
+
                 res.end("Command Succeeded\n");
               });
             });
@@ -661,6 +665,7 @@ mongoose.connect(config.mongoDBuri, function () {
             console.log(new Error("Expecting 'sha' parameter for this command"));
             return res.end("Command Failed: Missing Parameter 'sha'\n");
           }
+
           if (!query.jobTitle) {
             console.log(new Error("Expecting 'jobTitle' parameter for this command"));
             return res.end("Command Failed: Missing Parameter 'jobTitle'\n");
@@ -671,6 +676,7 @@ mongoose.connect(config.mongoDBuri, function () {
               console.log(err);
               return res.end("Command Failed\n");
             }
+
             if (job == null) {
               console.log("Job: %s not found", query.jobTitle);
               return res.end("Job not found\n");
@@ -688,6 +694,7 @@ mongoose.connect(config.mongoDBuri, function () {
                 console.log(err);
                 return res.end("Command Failed\n");
               }
+
               runQ.push(run);
               res.end("Command Succeeded\n");
             });
