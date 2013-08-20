@@ -689,6 +689,7 @@ mongoose.connect(config.mongoDBuri, function () {
                 return res.end("Command Failed\n");
               }
               runQ.push(run);
+              res.end("Command Succeeded\n");
             });
           });
         } else {
