@@ -6,6 +6,7 @@ var mongoose = require('mongoose');
 var async = require('async');
 var mkdirp = require('mkdirp');
 var email = require('nodemailer');
+var GithubApi = require('github');
 
 var http = require('http');
 var https = require('https');
@@ -22,6 +23,10 @@ var url = require('url');
 if (process.env.GH_WD) {
   process.chdir(process.env.GH_WD);
 }
+
+var github = new GithubApi({
+  version : "3.0.0"
+});
 
 var config;
 if (process.env.GH_DEV) {
@@ -107,26 +112,19 @@ mongoose.connect(config.mongoDBuri, function () {
           }
 
           // get the clone url
-          var repo = jobM.repoUrl.replace(config.githubUri, "");
-          var options = {
-            host : config.githubApiUri,
-            path : utils.format("/repos/%s", repo),
-            method : "GET"
+          var repo = jobM.repoUrl.replace(config.githubUri, "").split("/");
+          var msg = {
+            user : repo[0],
+            repo : repo[1]
           };
-          var req = https.request(options, function (res) {
-            var content = "";
+          github.repos.get(msg, function (err, repo) {
+            if (err) {
+              return cb(err);
+            }
 
-            res.on('data', function (data) {
-              content += data.toString();
-            });
-
-            res.on('end', function () {
-              var respObj = JSON.parse(content);
-              jobM.cloneUrl = respObj.ssh_url;
-              jobM.save(cb);
-            });
+            jobM.cloneUrl = repo.ssh_url;
+            jobM.save(cb);
           });
-          req.end()
         });
       }
     });
@@ -435,44 +433,38 @@ mongoose.connect(config.mongoDBuri, function () {
 
         var repo = run.job.repoUrl.replace(config.githubUri,"");
         if (repo[repo.length -1] == "/") repo = repo.substr(0, repo.length - 1);
-        var options = {
-          host : config.githubApiUri,
-          path : utils.format("/repos/%s/statuses/%s", repo, run.lastCommit),
-          method : "GET"
+        repo = repo.split("/");
+        var msg = {
+          user : repo[0],
+          repo : repo[1],
+          sha : run.lastCommit
         };
         var intId = setInterval(function() {
-          var req = https.request(options, function (res) {
-            var data = "";
+          github.statuses.get(msg, function (err, statuses) {
+            if (err) {
+              return cb(err);
+            }
 
-            res.on('data', function (d) {
-              data += d.toString();
-            });
-
-            res.on('end', function () {
-              var resp = JSON.parse(data);
-
-              var l = resp.length;
-              for (var i=0; i < l; i++) {
-                var r = resp[i];
-                if (r.state == 'success') {
-                  // it passed, push it on the queue to get run
-                  runQ.push(run);
-                  clearInterval(intId);
-                  cb();
-                }
-                if (r.state == 'failure') {
-                  run.status = "error";
-                  run.error = new Error("Travis CI build failed");
-                  run.finished = new Date();
-                  run.save(function (err) {
-                    clearInterval(intId);
-                    cb();
-                  });
-                }
+            var l = statuses.length;
+            for (var i=0; i < l; i++) {
+              var r = statuses[i];
+              if (r.state == 'success') {
+                // it passed, push it on the queue to get run
+                runQ.push(run);
+                clearInterval(intId);
+                return cb();
               }
-            });
+              if (r.state == 'failure') {
+                run.status = "error";
+                run.error = new Error("Travis CI build failed");
+                run.finished = new Date();
+                run.save(function (err) {
+                  clearInterval(intId);
+                  return cb();
+                });
+              }
+            }
           });
-          req.end();
         }, 30 * 1000);
       });
     }, 3);
@@ -521,42 +513,31 @@ mongoose.connect(config.mongoDBuri, function () {
                   // time to get the head commit
                   var repo = job.repoUrl.replace(config.githubUri,"");
                   if (repo[repo.length -1] == "/") repo = repo.substr(0, repo.length - 1);
-                  var options = {
-                    host : config.githubApiUri,
-                    path : utils.format("/repos/%s/git/refs/tags/%s", repo, run.tagName),
-                    method : "GET"
+                  repo = repo.split("/");
+                  var msg = {
+                    user : repo[0],
+                    repo : repo[1],
+                    ref : "tags/" + run.tagName
                   };
-
-
-                  var req = https.request(options, function (res) {
-                    var data = "";
-                    res.on('data', function (d) {
-                      data += d.toString();
-                    });
-
-                    res.on('end', function () {
-                      var obj = JSON.parse(data);
-                      // if it has a message property, then no such ref exists
-                      if (obj.message) {
-                        run.error = new Error("ref does not exist");
-                        run.status = "error";
-                        run.finished = new Date();
-                        console.log(run.error);
-                        return run.save(function (err) {
-                          if (err) {
-                            console.log(err);
-                          }
-                        });
-                      }
-
-                      run.lastCommit = obj.object.sha;
-                      run.save(function (err) {
-                        if (err) return console.log(err);
-                        runQ.push(run);
+                  github.gitdata.getReference(msg, function (err, tag) {
+                    if (err) {
+                      run.error = new Error("ref does not exist");
+                      run.status = "error";
+                      run.finished = new Date();
+                      console.log(run.error);
+                      return run.save(function (err) {
+                        if (err) {
+                          console.log(err);
+                        }
                       });
+                    }
+
+                    run.lastCommit = tag.object.sha;
+                    run.save(function (err) {
+                      if (err) return console.log(err);
+                      runQ.push(run);
                     });
                   });
-                  req.end();
                 }
               })(x);
             }
@@ -805,39 +786,20 @@ function sendCompletionEmail(run, config) {
 function getCommitDate(run, job, callback) {
   var repo = job.repoUrl.replace(config.githubUri,"");
   if (repo[repo.length -1] == "/") repo = repo.substr(0, repo.length - 1);
-  var options = {
-    host : config.githubApiUri,
-    path : utils.format("/repos/%s/commits/%s", repo, run.lastCommit),
-    method : "GET"
+  repo = repo.split("/");
+
+  var msg = {
+    user : repo[0],
+    repo : repo[1],
+    sha : run.lastCommit
   };
 
-  var req = https.request(options, function (res) {
-    var data = "";
+  github.repos.getCommit(msg, function (err, commit) {
+    if (err) {
+      return callback(err);
+    }
+    run.ts = commit.author.date;
 
-    res.on('data', function (d) {
-      data += d.toString();
-    });
-
-    res.on('end', function () {
-      var respObj;
-      try {
-        respObj = JSON.parse(data);
-      } catch (err) {
-        return callback(err, repo_loc);
-      }
-
-      // if there is a message property, that is an error from Github
-      if (respObj.message) {
-        return callback(new Error(respObj.message));
-      }
-
-      run.ts = respObj.commit.author.date;
-
-      run.save(callback);
-    });
+    run.save(callback);
   });
-  req.on('error', function (err) {
-    return callback(err, repo_loc);
-  });
-  req.end();
 }

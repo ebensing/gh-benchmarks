@@ -12,7 +12,8 @@
     "mkdirp" : "0.3.5",
     "gauss" : "0.2.8",
     "gh-benchmarks-grapher" : "0.0.9",
-    "nodemailer" : "0.5.2"
+    "nodemailer" : "0.5.2",
+    "github" : "*"
   },
   "repository": {
     "type": "git",
