@@ -246,7 +246,6 @@ mongoose.connect(config.mongoDBuri, function () {
                 });
 
                 if (err) {
-                  throw err;
                   tr.status = "error";
                   tr.rawOut = err.toString();
                   allSucceed = false;
@@ -657,6 +656,7 @@ mongoose.connect(config.mongoDBuri, function () {
             });
           });
         } else if (query.command == 'runCommit') {
+
           if (!query.sha) {
             console.log(new Error("Expecting 'sha' parameter for this command"));
             return res.end("Command Failed: Missing Parameter 'sha'\n");
