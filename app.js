@@ -182,7 +182,7 @@ mongoose.connect(config.mongoDBuri, function () {
       // avoid having two things running simultaneously. Should probably
       // refactor this and make the commit run workflow more modular
       if (run.PR) {
-        return cloneAndRunPullRequest(run, job, queueCallback);
+        return cloneAndRunPullRequest(run, run.job, queueCallback);
       }
       run.populate('job', function (err) {
         if (err) {
@@ -675,6 +675,7 @@ mongoose.connect(config.mongoDBuri, function () {
               }
 
               reqJson.pull_request.PR = true;
+              reqJson.pull_request.job = job;
               runQ.push(reqJson.pull_request);
             });
           }
