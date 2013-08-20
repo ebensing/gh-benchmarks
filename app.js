@@ -615,8 +615,17 @@ mongoose.connect(config.mongoDBuri, function () {
         reqData += data.toString();
       });
       req.on('end', function () {
+        var reqJson;
+        try {
+          reqJson = JSON.parse(qs.parse(reqData).payload);
+        } catch (err) {
+          // if we get an error, this means it is in the JSON format. <3 APIs
+          // that have different content formats... This could be fixed if I
+          // created the push hook for the user or set the content type of the
+          // pull request hook to be the legacy thing, but f*** it.
+          reqJson = JSON.parse(reqData);
+        }
         // turn the data into an actual object that we can work with
-        var reqJson = JSON.parse(qs.parse(reqData).payload);
         // check if this is a pull request or push event
         if (!reqJson.action && !reqJson.pull_request) {
           var cond = {
