@@ -538,9 +538,6 @@ cleanup or re-run a failed task. They can all be accessed using port 8081 on
 localhost, thus it is **highly** recommended that you keep port 8081 closed to
 the public. 
 
-Currently, only 1 command is supported, but more can easily be added in the
-future if they are needed.
-
 `curl http://localhost:8081/?command=<command name>`
 
 runFailed
@@ -551,6 +548,24 @@ can be particularly useful if, for some strange reason, gh-benchmarks crashes
 in the middle of a run and you need to re-run all of the pending tasks.
 
 `curl http://localhost:8081/?command=runFailed`
+
+runCommit
+--------------------
+
+This command allows you to specify a commit for the benchmarks to be run on.
+
+It has 3 require parameters:
+1. command - This should always be "runCommit"
+2. sha - this should be the full SHA of the commit you want to run the
+benchmarks on
+3. jobTitle - This should be the job title of the job you want to attach this
+run to.
+
+`curl "http://localhost:8081/?command=runCommit&sha=<SHA here>&jobTitle=<title here>"`
+
+**Note**: If you use `curl`, it is important to have quotes around the URL. If
+you don't think the command line interprets things weird and you will not be
+able to run the command correctly.
  
 Extending the Charts
 ====================
