@@ -1,4 +1,3 @@
-
 Github Benchmarks
 =====================
 
@@ -556,10 +555,8 @@ This command allows you to specify a commit for the benchmarks to be run on.
 
 It has 3 require parameters:
 1. command - This should always be "runCommit"
-2. sha - this should be the full SHA of the commit you want to run the
-benchmarks on
-3. jobTitle - This should be the job title of the job you want to attach this
-run to.
+2. sha - this should be the full SHA of the commit you want to run the benchmarks on.
+3. jobTitle - This should be the job title of the job you want to attach this run to.
 
 `curl "http://localhost:8081/?command=runCommit&sha=<SHA here>&jobTitle=<title here>"`
 
