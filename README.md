@@ -554,14 +554,15 @@ runCommit
 This command allows you to specify a commit for the benchmarks to be run on.
 
 It has 3 require parameters:
-1. command - This should always be "runCommit"
-2. sha - this should be the full SHA of the commit you want to run the benchmarks on.
-3. jobTitle - This should be the job title of the job you want to attach this run to.
+
+1. **command** - This should always be "runCommit"
+2. **sha** - this should be the full SHA of the commit you want to run the benchmarks on.
+3. **jobTitle** - This should be the job title of the job you want to attach this run to.
 
 `curl "http://localhost:8081/?command=runCommit&sha=<SHA here>&jobTitle=<title here>"`
 
 **Note**: If you use `curl`, it is important to have quotes around the URL. If
-you don't think the command line interprets things weird and you will not be
+you don't, then the command line interprets things weird and you will not be
 able to run the command correctly.
  
 Extending the Charts
