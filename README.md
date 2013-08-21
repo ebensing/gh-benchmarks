@@ -529,6 +529,28 @@ These are only other files in the repository. This feature is meant to allow
 you to either keep all benchmarking code in its own branch or to run these
 benchmarks on old tags that do not have the benchmarks in them.
 
+Pull Requests
+====================
+
+gh-benchmarks can also run against pull requests submitted to your repository.
+When the `watchPullRequests` property on a job is set to true, the repository
+will be monitored for future pull requests and run against all current pull
+requests.
+
+The system will post the results as a comment on the pull request in plain
+text. Thus, it is recommend that you have your benchmarks output plain text and
+JSON based off the environment variable `PULL_REQUEST` which will be set to
+true when a task is being run for a pull request.
+
+In order for pull requests to work correctly though, you must give the system
+login credentials to Github. These should be specified via the `githubUsername`
+and `githubPassword` environment variables. Even if you do not run the
+benchmarks against pull requests, it is still recommended to have these set
+because it will greatly increase the number of API requests allowed per hour.
+
+If you would like access to your preservedFiles during pull requests, you need
+to add `__PULLREQUESTS__` to the ref list on the `preservedFiles` property.
+
 Admin Commands
 ====================
 

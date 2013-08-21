@@ -565,7 +565,8 @@ mongoose.connect(config.mongoDBuri, function () {
 
             for (var i=0; i < pullRequests.length; i++) {
               var pr = pullRequests[i];
-              if (job.pull_requests.indexOf(pr.number) == -1) {
+              if (job.pull_requests.indexOf(pr.number) == -1
+                  && pr.base.ref == job.ref) {
                 pr.PR = true;
                 pr.job = job;
                 runQ.push(pr);
