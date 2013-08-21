@@ -965,6 +965,10 @@ function getPreservedFiles(repo_loc, run, job, callback) {
 
   var searchName = run.tagName || job.ref;
 
+  if (run.PR == true) {
+    searchName = "__PULLREQUESTS__";
+  }
+
   if (job.preservedFiles && job.preservedFiles.refs.indexOf(searchName) == -1) {
     return callback(null, repo_loc);
   }
@@ -990,6 +994,10 @@ function getPreservedFiles(repo_loc, run, job, callback) {
 function copyinPreservedFiles(repo_loc, run, job, callback) {
   // check if we need to do this step
   var searchName = run.tagName || job.ref;
+
+  if (run.PR == true) {
+    searchName = "__PULLREQUESTS__";
+  }
 
   if (job.preservedFiles && job.preservedFiles.refs.indexOf(searchName) == -1) {
     return callback(null, repo_loc);
