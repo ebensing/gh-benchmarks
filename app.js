@@ -686,13 +686,13 @@ mongoose.connect(config.mongoDBuri, function () {
               return item.id;
             });
 
-            TaskRun.remove({ _id : { $in : ids } }, function (err) {
+            TaskRun.remove({ run : { $in : ids } }, function (err) {
               if (err) {
                 console.log(err);
                 return res.end("Command Failed\n");
               }
 
-              TaskRun.update({ _id : { $in : ids } }, { status : "pending" },
+              Run.update({ _id : { $in : ids } }, { $set : { status : "pending", error : {} } },
                 { multi : true }, function (err) {
                 if (err) {
                   console.log(err);
