@@ -40,7 +40,7 @@ function clone_repo(url, cb) {
  */
 
 function clone_https_repo(url, cb) {
-  var repoName = url.replace("https://github.com","").replace(".git","").replace("/","-");
+  var repoName = url.replace("https://github.com/","").replace(".git","").replace("/","-");
   exec(utils.format("git clone %s repos/%s", url, repoName), function (err, stdout, stderr) {
     if (err) return cb(err);
 
