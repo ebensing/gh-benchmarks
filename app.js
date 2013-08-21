@@ -171,34 +171,6 @@ mongoose.connect(config.mongoDBuri, function () {
           console.log("Pull request hook for %s has been created", job.title);
         });
 
-        JobDesc.findOne({ title : job.title }, function (err, jd) {
-          if (err) {
-            console.log(err);
-            return;
-          }
-          // scan for existing pull requests that need to be benchmarked
-          var msg = {
-            user : repo[0],
-            repo : repo[1],
-            state : "open",
-            per_page : 100 // if you ever have over 100 pull requests... Fix that
-          };
-          github.pullRequests.getAll(msg, function (err, pullRequests) {
-            if (err) {
-              console.log(err);
-              return;
-            }
-
-            for (var i=0; i < pullRequests.length; i++) {
-              var pr = pullRequests[i];
-              if (jd.pull_requests.indexOf(pr.number) == -1) {
-                pr.PR = true;
-                pr.job = jd;
-                runQ.push(pr);
-              }
-            }
-          });
-        });
       }
     });
   }, function (err) {
@@ -624,6 +596,46 @@ mongoose.connect(config.mongoDBuri, function () {
           })(i);
         }
       });
+    });
+
+    // check for pull requests that need to be run
+
+    JobDesc.find({ watchPullRequests : true }, function (err, jobs) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      for (var i=0; i < jobs.length; i++) {
+        (function (i) {
+          var job = jobs[i];
+          // scan for existing pull requests that need to be benchmarked
+          var repo = job.repoUrl.replace(config.githubUri,"");
+          if (repo[repo.length -1] == "/") repo = repo.substr(0, repo.length - 1);
+          repo = repo.split("/");
+
+          var msg = {
+            user : repo[0],
+            repo : repo[1],
+            state : "open",
+            per_page : 100 // if you ever have over 100 pull requests... Fix that
+          };
+          github.pullRequests.getAll(msg, function (err, pullRequests) {
+            if (err) {
+              console.log(err);
+              return;
+            }
+
+            for (var i=0; i < pullRequests.length; i++) {
+              var pr = pullRequests[i];
+              if (jd.pull_requests.indexOf(pr.number) == -1) {
+                pr.PR = true;
+                pr.job = job;
+                runQ.push(pr);
+              }
+            }
+          });
+        })(i);
+      }
     });
 
     // start the listening server
