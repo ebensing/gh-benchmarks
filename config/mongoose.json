@@ -240,8 +240,15 @@
       "saveBranch" : "gh-pages",
       "saveLoc" : "benchmarks",
       "preservedFiles" : {
-        "refs" : [ ],
+        "refs" : [ "__PULLREQUESTS__" ],
         "files" : [
+          { "branch" : "master", "name" : "benchmarks/benchjs/delete.js" },
+          { "branch" : "master", "name" : "benchmarks/benchjs/insert.js" },
+          { "branch" : "master", "name" : "benchmarks/benchjs/read.js" },
+          { "branch" : "master", "name" : "benchmarks/benchjs/casting.js" },
+          { "branch" : "master", "name" : "benchmarks/benchjs/multiop.js" },
+          { "branch" : "master", "name" : "benchmarks/benchjs/population.js" },
+          { "branch" : "master", "name" : "benchmarks/benchjs/update.js" }
         ]
       }
     },
