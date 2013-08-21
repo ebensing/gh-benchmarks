@@ -210,7 +210,7 @@ mongoose.connect(config.mongoDBuri, function () {
             callback(null, repo_loc);
           }, function (repo_loc, callback) {
 
-            getPreserveFiles(repo_loc, run, run.job, callback);
+            getPreservedFiles(repo_loc, run, run.job, callback);
 
           }, function (repo_loc, callback) {
 
