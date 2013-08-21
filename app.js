@@ -895,7 +895,7 @@ function cloneAndRunPullRequest(pull_request, job, mainCB) {
       });
     }, function (repo_loc, callback) {
 
-      copyinPreservedfiles(repo_loc, pull_request, job, callback);
+      copyinPreservedFiles(repo_loc, pull_request, job, callback);
 
     }, function (repo_loc, callback) {
 
