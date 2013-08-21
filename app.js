@@ -221,15 +221,7 @@ mongoose.connect(config.mongoDBuri, function () {
 
           }, function (repo_loc, callback) {
 
-            // run the setup work
-            var before = run.job.before.map(function (item) {
-              return utils.format("cd %s && ", repo_loc) + item;
-            });
-            async.eachSeries(before, function (command, cb) {
-              exec(command, cb);
-            }, function (err) {
-              callback(err, repo_loc);
-            });
+            runBeforeCommands(repo_loc, run.job, callback);
 
           }, function (repo_loc, callback) {
 
@@ -899,6 +891,10 @@ function cloneAndRunPullRequest(pull_request, job, mainCB) {
 
     }, function (repo_loc, callback) {
 
+      runBeforeCommands(repo_loc, job, callback);
+
+    }, function (repo_loc, callback) {
+
       var output = {};
       // time to run the actual benchmarks
       async.mapSeries(job.tasks, function (task, cb) {
@@ -1046,4 +1042,16 @@ function setupGithubAuth() {
       password : process.env.githubPassword
     });
   }
+}
+
+function runBeforeCommands(repo_loc, job, callback) {
+  // run the setup work
+  var before = job.before.map(function (item) {
+    return utils.format("cd %s && ", repo_loc) + item;
+  });
+  async.eachSeries(before, function (command, cb) {
+    exec(command, cb);
+  }, function (err) {
+    callback(err, repo_loc);
+  });
 }
