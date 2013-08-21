@@ -209,37 +209,9 @@ mongoose.connect(config.mongoDBuri, function () {
             // that update
             callback(null, repo_loc);
           }, function (repo_loc, callback) {
-            // handle the preserved files - these are files from a different
-            // branch that you want available in your main branch. useful for
-            // running benchmarks on old tags, ect
 
-            // first, check if we even need to worry about them. This config
-            // option was added when the new tag system was introduced. You
-            // might only want the preserved files on the tag and not on the
-            // branch that you are watching
+            getPreserveFiles(repo_loc, run, run.job, callback);
 
-            var searchName = run.tagName || run.job.ref;
-
-            if (run.job.perservedFiles && run.job.perservedFiles.refs.indexOf(searchName) == -1) {
-              return callback(null, repo_loc);
-            }
-
-            // copy all the necessary files
-            // checkout the correct branch for each file & exec command
-            async.eachSeries(run.job.preservedFiles.files, function (item, pcb) {
-              var dir = utils.format("repos/.tmp/%s", path.dirname(item.name));
-              mkdirp(dir, function(err) {
-                if (err) return pcb(err);
-                var command = utils.format("cp %s/%s repos/.tmp/%s", repo_loc,
-                  item.name, item.name);
-                git.checkout_ref(repo_loc, item.branch, function (err) {
-                  if (err) return pcb(err);
-                  exec(command, pcb);
-                });
-              });
-            }, function (err) {
-              callback(err, repo_loc);
-            });
           }, function (repo_loc, callback) {
 
             // switch to the correct commit
@@ -248,27 +220,9 @@ mongoose.connect(config.mongoDBuri, function () {
             });
 
           }, function (repo_loc, callback) {
-            // check if we need to do this step
-            var searchName = run.tagName || run.job.ref;
 
-            if (run.job.perservedFiles && run.job.perservedFiles.refs.indexOf(searchName) == -1) {
-              return callback(null, repo_loc);
-            }
+            copyinPreservedFiles(repo_loc, run, run.job, callback);
 
-            // copy in all of the preservedFiles
-
-            async.each(run.job.preservedFiles.files, function (item, pcb) {
-              var dir = utils.format("%s/%s", repo_loc, path.dirname(item.name));
-
-              mkdirp(dir, function (err) {
-                if (err) return pcb(err);
-
-                var command = utils.format("cp repos/.tmp/%s %s/%s", item.name, repo_loc, item.name);
-                exec(command, pcb);
-              });
-            }, function (err) {
-              callback(err, repo_loc);
-            });
           }, function (repo_loc, callback) {
 
             // run the setup work
@@ -373,22 +327,7 @@ mongoose.connect(config.mongoDBuri, function () {
             });
           }, function (repo_loc, callback) {
 
-            // check if we need to actually run this first
-
-            var searchName = run.tagName || run.job.ref;
-
-            if (run.job.perservedFiles && run.job.perservedFiles.refs.indexOf(searchName) == -1) {
-              return callback(null, repo_loc);
-            }
-
-            // need to remove the preserved files so that we can switch branches
-            var files = run.job.preservedFiles.files.map(function (item) {
-              return utils.format("%s/%s", repo_loc, item.name);
-            });
-
-            async.each(files, fs.unlink, function (err) {
-              callback(err, repo_loc);
-            });
+            deletePreservedFiles(repo_loc, run, run.job, callback);
 
           }, function (repo_loc, callback) {
             // switch to the branch where we will save results
@@ -945,10 +884,18 @@ function cloneAndRunPullRequest(pull_request, job, mainCB) {
     function (callback) {
       git.clone_https(pull_request.head.repo.clone_url, callback);
     }, function (repo_loc, callback) {
+
+      getPreservedFiles(repo_loc, pull_request, job, callback);
+
+    }, function (repo_loc, callback) {
       // switch to the correct commit
       git.checkout_commit(repo_loc, pull_request.head.sha, function (err) {
         callback(err, repo_loc);
       });
+    }, function (repo_loc, callback) {
+
+      copyinPreservedfiles(repo_loc, pull_request, job, callback);
+
     }, function (repo_loc, callback) {
 
       var output = {};
@@ -1006,5 +953,86 @@ function cloneAndRunPullRequest(pull_request, job, mainCB) {
       console.log(err);
     }
     cleanup(err, repo_loc, mainCB);
+  });
+}
+
+function getPreservedFiles(repo_loc, run, job, callback) {
+  // handle the preserved files - these are files from a different
+  // branch that you want available in your main branch. useful for
+  // running benchmarks on old tags, ect
+
+  // first, check if we even need to worry about them. This config
+  // option was added when the new tag system was introduced. You
+  // might only want the preserved files on the tag and not on the
+  // branch that you are watching
+
+  var searchName = run.tagName || job.ref;
+
+  if (job.preservedFiles && job.preservedFiles.refs.indexOf(searchName) == -1) {
+    return callback(null, repo_loc);
+  }
+
+  // copy all the necessary files
+  // checkout the correct branch for each file & exec command
+  async.eachSeries(job.preservedFiles.files, function (item, pcb) {
+    var dir = utils.format("repos/.tmp/%s", path.dirname(item.name));
+    mkdirp(dir, function(err) {
+      if (err) return pcb(err);
+      var command = utils.format("cp %s/%s repos/.tmp/%s", repo_loc,
+        item.name, item.name);
+      git.checkout_ref(repo_loc, item.branch, function (err) {
+        if (err) return pcb(err);
+        exec(command, pcb);
+      });
+    });
+  }, function (err) {
+    callback(err, repo_loc);
+  });
+}
+
+function copyinPreservedFiles(repo_loc, run, job, callback) {
+  // check if we need to do this step
+  var searchName = run.tagName || job.ref;
+
+  if (job.preservedFiles && job.preservedFiles.refs.indexOf(searchName) == -1) {
+    return callback(null, repo_loc);
+  }
+
+  // copy in all of the preservedFiles
+
+  async.each(job.preservedFiles.files, function (item, pcb) {
+    var dir = utils.format("%s/%s", repo_loc, path.dirname(item.name));
+
+    mkdirp(dir, function (err) {
+      if (err) return pcb(err);
+
+      var command = utils.format("cp repos/.tmp/%s %s/%s", item.name, repo_loc, item.name);
+      exec(command, pcb);
+    });
+  }, function (err) {
+    callback(err, repo_loc);
+  });
+}
+
+function deletePreservedFiles(repo_loc, run, job, callback) {
+  // check if we need to actually run this first
+
+  var searchName = run.tagName || job.ref;
+
+  if (run.PR == true) {
+    searchName = "__PULLREQUESTS__";
+  }
+
+  if (job.preservedFiles && job.preservedFiles.refs.indexOf(searchName) == -1) {
+    return callback(null, repo_loc);
+  }
+
+  // need to remove the preserved files so that we can switch branches
+  var files = job.preservedFiles.files.map(function (item) {
+    return utils.format("%s/%s", repo_loc, item.name);
+  });
+
+  async.each(files, fs.unlink, function (err) {
+    callback(err, repo_loc);
   });
 }
