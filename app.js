@@ -117,6 +117,7 @@ mongoose.connect(config.mongoDBuri, function () {
             user : repo[0],
             repo : repo[1]
           };
+          setupGithubAuth();
           github.repos.get(msg, function (err, repo) {
             if (err) {
               return cb(err);
@@ -134,13 +135,8 @@ mongoose.connect(config.mongoDBuri, function () {
           console.log("No Github credentials provided, cannot create web hook");
           return;
         }
-        // setup auth now
-        github.authenticate({
-          type: "basic",
-          username : process.env.githubUsername,
-          password : process.env.githubPassword
-        });
 
+        setupGithubAuth();
         // setup the webhook for PRs now
         var repo = job.repoUrl.replace(config.githubUri, "").split("/");
         var msg = {
@@ -433,6 +429,7 @@ mongoose.connect(config.mongoDBuri, function () {
         var intId = setInterval(function() {
           github.statuses.get(msg, function (err, statuses) {
             if (err) {
+              clearInterval(intId);
               return cb(err);
             }
 
@@ -510,6 +507,7 @@ mongoose.connect(config.mongoDBuri, function () {
                     repo : repo[1],
                     ref : "tags/" + run.tagName
                   };
+                  setupGithubAuth();
                   github.gitdata.getReference(msg, function (err, tag) {
                     if (err) {
                       run.error = new Error("ref does not exist");
@@ -558,6 +556,7 @@ mongoose.connect(config.mongoDBuri, function () {
             state : "open",
             per_page : 100 // if you ever have over 100 pull requests... Fix that
           };
+          setupGithubAuth();
           github.pullRequests.getAll(msg, function (err, pullRequests) {
             if (err) {
               console.log(err);
@@ -862,6 +861,7 @@ function getCommitDate(run, job, callback) {
     sha : run.lastCommit
   };
 
+  setupGithubAuth();
   github.repos.getCommit(msg, function (err, obj) {
     if (err) {
       return callback(err);
@@ -1035,4 +1035,14 @@ function deletePreservedFiles(repo_loc, run, job, callback) {
   async.each(files, fs.unlink, function (err) {
     callback(err, repo_loc);
   });
+}
+
+function setupGithubAuth() {
+  if (process.env.githubUsername && process.env.githubPassword) {
+    github.authenticate({
+      type: "basic",
+      username : process.env.githubUsername,
+      password : process.env.githubPassword
+    });
+  }
 }
