@@ -922,11 +922,11 @@ function cloneAndRunPullRequest(pull_request, job, mainCB) {
         }
 
         // build the string that gets posted to Github
-        var postStr = "Benchmarks for the pull request:\n";
+        var postStr = utils.format("Benchmarks for %s:\n", pull_request.head.sha);
         for (var i=0; i < job.tasks.length; i++) {
           var task = job.tasks[i];
           postStr += "**" + task.title + "**\n";
-          postStr += "```";
+          postStr += "```\n";
           postStr += output[i].toString();
           postStr += "```\n\n";
         }
