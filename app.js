@@ -903,12 +903,12 @@ function cloneAndRunPullRequest(pull_request, job, mainCB) {
   async.waterfall([
     function (callback) {
       git.clone_https(pull_request.head.repo.clone_url, callback);
-    }, function (repo_url, callback) {
+    }, function (repo_loc, callback) {
       // switch to the correct commit
       git.checkout_commit(repo_loc, pull_request.head.sha, function (err) {
         callback(err, repo_loc);
       });
-    }, function (repo_url, callback) {
+    }, function (repo_loc, callback) {
 
       var output = {};
       // time to run the actual benchmarks
@@ -932,7 +932,7 @@ function cloneAndRunPullRequest(pull_request, job, mainCB) {
         }
         callback(err, repo_loc, postStr);
       });
-    }, function (repo_url, postStr, callback) {
+    }, function (repo_loc, postStr, callback) {
 
       // create the comment on the pull request. We use the issues API here
       // because pull request comments refer specifically to the comments on
