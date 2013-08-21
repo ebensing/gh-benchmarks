@@ -170,6 +170,35 @@ mongoose.connect(config.mongoDBuri, function () {
           }
           console.log("Pull request hook for %s has been created", job.title);
         });
+
+        JobDesc.findOne({ title : job.title }, function (err, jd) {
+          if (err) {
+            console.log(err);
+            return;
+          }
+          // scan for existing pull requests that need to be benchmarked
+          var msg = {
+            user : repo[0],
+            repo : repo[1],
+            state : "open",
+            per_page : 100 // if you ever have over 100 pull requests... Fix that
+          };
+          github.pullRequests.getAll(msg, function (err, pullRequests) {
+            if (err) {
+              console.log(err);
+              return;
+            }
+
+            for (var i=0; i < pullRequests.length; i++) {
+              var pr = pullRequests[i];
+              if (jd.pull_requests.indexOf(pr.number) == -1) {
+                pr.PR = true;
+                pr.job = jd;
+                runQ.push(pr);
+              }
+            }
+          });
+        });
       }
     });
   }, function (err) {
