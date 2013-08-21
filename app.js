@@ -951,7 +951,7 @@ function cloneAndRunPullRequest(pull_request, job, mainCB) {
         body : postStr
       };
 
-      github.createComment(msg, function (err, comment) {
+      github.issues.createComment(msg, function (err, comment) {
         callback(err, repo_loc);
       });
     }, function (repo_loc, callback) {
