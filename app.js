@@ -50,9 +50,6 @@ function exec(command, callback) {
   });
 }
 
-// for debugging
-//mongoose.set('debug', true);
-
 // helper function to get object property by string
 Object.byString = function(o, s) {
   s = s.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
@@ -151,6 +148,8 @@ mongoose.connect(config.mongoDBuri, function () {
         };
         github.repos.createHook(msg, function (err, hook) {
           if (err) {
+            // sometimes this returns the error message as a JSON string in the
+            // message attribute.
             if (err.message) {
               try {
                 err = JSON.parse(err.message);
@@ -166,7 +165,6 @@ mongoose.connect(config.mongoDBuri, function () {
           }
           console.log("Pull request hook for %s has been created", job.title);
         });
-
       }
     });
   }, function (err) {
@@ -372,10 +370,10 @@ mongoose.connect(config.mongoDBuri, function () {
             run.error = err;
             run.finished = new Date();
             // save it and go to cleanup
-            return run.save(function (err) {
+            return run.save(function (e) {
               // send the email to let people know it is done
               sendCompletionEmail(run, emailConfig);
-              cleanup(err, repo_loc, queueCallback);
+              cleanup(err || e, repo_loc, queueCallback);
             });
           }
 
@@ -438,14 +436,14 @@ mongoose.connect(config.mongoDBuri, function () {
                 run.status = "error";
                 run.error = new Error("Travis CI build failed");
                 run.finished = new Date();
-                run.save(function (err) {
+                return run.save(function (err) {
                   clearInterval(intId);
-                  return cb();
+                  cb();
                 });
               }
             }
           });
-        }, 30 * 1000);
+        }, 60 * 1000);
       });
     }, 3);
 
@@ -456,7 +454,10 @@ mongoose.connect(config.mongoDBuri, function () {
       var conds = { $or : [ { status : "success"}, { status : "error" }],
                     tagName : { $exists : true }};
       Run.find(conds, function (err, tagRuns) {
-        if (err) return console.log(err);
+        if (err) {
+          console.log(err);
+          return;
+        }
 
         // create a map of the jobs & tags so that we can easily find tags that
         // have not been run yet
@@ -515,7 +516,10 @@ mongoose.connect(config.mongoDBuri, function () {
 
                     run.lastCommit = tag.object.sha;
                     run.save(function (err) {
-                      if (err) return console.log(err);
+                      if (err) {
+                        console.log(err);
+                        return;
+                      }
                       runQ.push(run);
                     });
                   });
@@ -685,6 +689,8 @@ mongoose.connect(config.mongoDBuri, function () {
                 return res.end("Command Failed\n");
               }
 
+              // make sure to clear any errors out here too. The documents look
+              // weird in the DB with an error message and {status : "success"}
               Run.update({ _id : { $in : ids } }, { $set : { status : "pending", error : {} } },
                 { multi : true }, function (err) {
                 if (err) {
@@ -802,6 +808,13 @@ mongoose.connect(config.mongoDBuri, function () {
   }
 });
 
+/**
+ * This is the cleanup command. It will print any errors and then delete the
+ * repo directory and the temp directory.
+ * @param {Object} error - any errors that occured during the run
+ * @param {String} repo_loc - location of the repo relative to cwd
+ * @param {Function} callback
+ */
 function cleanup(err, repo_loc, callback) {
   var command = utils.format("rm -rf %s repos/.tmp", repo_loc);
 
@@ -840,7 +853,11 @@ function sendCompletionEmail(run, config) {
 }
 /**
  * This function is used for getting the actual commit date for the commit in
- * question
+ * question. It will both get the value and persist it to the database.
+ *
+ * @param {Run} run - This is the run object that we need to get the commit date for
+ * @param {Job} job - This is the job object that the run belongs to
+ * @param {Function} callback
  *
  */
 function getCommitDate(run, job, callback) {
@@ -865,6 +882,16 @@ function getCommitDate(run, job, callback) {
     run.save(callback);
   });
 }
+
+/**
+ * This function runs the pull request benchmarks for pull requests.
+ *
+ * @param {Pull_Request} pull_request - pull request object returned from
+ *                                      Github API Note: not a mongoose model
+ * @param {Job} job - This is the job object that the pull request belongs to
+ * @param {Function} mainCB - this is the callback for the function
+ *
+ */
 
 function cloneAndRunPullRequest(pull_request, job, mainCB) {
 
@@ -953,6 +980,15 @@ function cloneAndRunPullRequest(pull_request, job, mainCB) {
   });
 }
 
+/**
+ * Get the preserved files for this run and save them to the .tmp directory
+ *
+ * @param {String} repo_loc - repo location relative to cwd
+ * @param {Run} run - the current run object OR pull_request object
+ * @param {Job} job - the job that the current run or pull_request belongs to
+ * @param {Function} callback
+ */
+
 function getPreservedFiles(repo_loc, run, job, callback) {
   // handle the preserved files - these are files from a different
   // branch that you want available in your main branch. useful for
@@ -991,6 +1027,15 @@ function getPreservedFiles(repo_loc, run, job, callback) {
   });
 }
 
+/**
+ * Copy in the preserved files for this run from .tmp directory
+ *
+ * @param {String} repo_loc - repo location relative to cwd
+ * @param {Run} run - the current run object OR pull_request object
+ * @param {Job} job - the job that the current run or pull_request belongs to
+ * @param {Function} callback
+ */
+
 function copyinPreservedFiles(repo_loc, run, job, callback) {
   // check if we need to do this step
   var searchName = run.tagName || job.ref;
@@ -1019,6 +1064,16 @@ function copyinPreservedFiles(repo_loc, run, job, callback) {
   });
 }
 
+/**
+ * Delete the preserved files from this run. This is needed because checking
+ * out a new ref will cause errors if there are new files
+ *
+ * @param {String} repo_loc - repo location relative to cwd
+ * @param {Run} run - the current run object OR pull_request object
+ * @param {Job} job - the job that the current run or pull_request belongs to
+ * @param {Function} callback
+ */
+
 function deletePreservedFiles(repo_loc, run, job, callback) {
   // check if we need to actually run this first
 
@@ -1042,6 +1097,10 @@ function deletePreservedFiles(repo_loc, run, job, callback) {
   });
 }
 
+/**
+ * Setup the auth for a github request. This should be called before any API call.
+ */
+
 function setupGithubAuth() {
   if (process.env.githubUsername && process.env.githubPassword) {
     github.authenticate({
@@ -1051,6 +1110,13 @@ function setupGithubAuth() {
     });
   }
 }
+
+/**
+ * Run all of the before commands for the current run
+ *
+ * @param {String} repo_loc - location of the repo relative to cwd
+ * @param {Job} job - the job the current run belongs to
+ */
 
 function runBeforeCommands(repo_loc, job, callback) {
   // run the setup work
