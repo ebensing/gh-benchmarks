@@ -79,12 +79,13 @@ var JobDesc = mongoose.model('JobDesc', models.JobDesc);
 var Run = mongoose.model('Run', models.Run);
 var TaskRun = mongoose.model('TaskRun', models.TaskRun);
 
+// import email config & set the from address
+var emailConfig = JSON.parse(fs.readFileSync(config.emailFile));
+email.from = emailConfig.from;
+
 mongoose.connect(config.mongoDBuri, function () {
 
   var fileJobs = JSON.parse(fs.readFileSync(config.jobsFile));
-  // import email config & set the from address
-  var emailConfig = JSON.parse(fs.readFileSync(config.emailFile));
-  email.from = emailConfig.from;
 
   async.each(fileJobs.jobs, function (job, cb) {
     JobDesc.findOne({ title : job.title }, function (err, jdb) {
