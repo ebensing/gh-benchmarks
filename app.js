@@ -75,10 +75,11 @@ var smtpTransport = email.createTransport("SMTP", {
   port : 25
 });
 
+var JobDesc = mongoose.model('JobDesc', models.JobDesc);
+var Run = mongoose.model('Run', models.Run);
+var TaskRun = mongoose.model('TaskRun', models.TaskRun);
+
 mongoose.connect(config.mongoDBuri, function () {
-  var JobDesc = mongoose.model('JobDesc', models.JobDesc);
-  var Run = mongoose.model('Run', models.Run);
-  var TaskRun = mongoose.model('TaskRun', models.TaskRun);
 
   var fileJobs = JSON.parse(fs.readFileSync(config.jobsFile));
   // import email config & set the from address
@@ -179,222 +180,9 @@ mongoose.connect(config.mongoDBuri, function () {
       if (run.PR) {
         return cloneAndRunPullRequest(run, run.job, queueCallback);
       }
-      run.populate('job', function (err) {
-        if (err) {
-          console.log(err);
-          return queueCallback(err);
-        }
-        console.log("Running Job: %s", run.job.title);
-        async.waterfall([
-          function (callback) {
-            // clone the repo
-            git.clone(run.job.cloneUrl, callback);
 
-          }, function (repo_loc, callback) {
-            // collect information about host system
-            run.sysinfo.platform = os.platform();
-            run.sysinfo.arch = os.arch();
-            run.sysinfo.release = os.release();
-            run.sysinfo.mem = os.totalmem();
-            run.sysinfo.cpuCount = os.cpus().length;
-            run.sysinfo.cpuVersion = os.cpus()[0].model;
-            // don't bother saving these values to the DB yet. By the end of
-            // this the db will write back and these can piggyback along with
-            // that update
-            callback(null, repo_loc);
-          }, function (repo_loc, callback) {
-
-            getPreservedFiles(repo_loc, run, run.job, callback);
-
-          }, function (repo_loc, callback) {
-
-            // switch to the correct commit
-            git.checkout_commit(repo_loc, run.lastCommit, function (err) {
-              callback(err, repo_loc);
-            });
-
-          }, function (repo_loc, callback) {
-
-            copyinPreservedFiles(repo_loc, run, run.job, callback);
-
-          }, function (repo_loc, callback) {
-
-            runBeforeCommands(repo_loc, run.job, callback);
-
-          }, function (repo_loc, callback) {
-
-            var allSucceed = true;
-            // time to run the actual benchmarks
-            async.eachSeries(run.job.tasks, function (task, cb) {
-              var command = utils.format("cd %s && ", repo_loc) + task.command;
-              exec(command, function (err, stdout, stderr) {
-                var tr = new TaskRun({
-                  title : task.title,
-                  ts : new Date(),
-                  run : run.id,
-                  job: run.job.id
-                });
-
-                if (err) {
-                  tr.status = "error";
-                  tr.rawOut = err.toString();
-                  allSucceed = false;
-                  return tr.save(cb);
-                }
-
-                tr.status = "success";
-                tr.rawOut = stdout.toString();
-                try {
-                  // parse the returned data and save it
-                  tr.data = JSON.parse(stdout.toString());
-                } catch(err) {
-                  tr.rawOut += err.toString();
-                  tr.status = "error";
-                  allSucceed = false;
-                }
-
-                tr.save(cb);
-              });
-            }, function (err) {
-              if (err || !allSucceed) {
-                return callback(err || new Error("One or more Tasks failed."), repo_loc);
-              }
-
-              callback(err, repo_loc);
-            });
-          }, function (repo_loc, callback) {
-            // run and post processing steps on the data
-            TaskRun.find({ run : run.id }, function (err, taskRuns) {
-              var allData = {};
-              for (var i=0; i < taskRuns.length; i++) {
-                var tr = taskRuns[i];
-                allData[tr.title] = tr.data;
-              }
-
-              // if after doesn't exist, save the output and move on
-              if (!run.job.after) {
-                run.output = allData;
-                return run.save(function (err) {
-                  callback(err, repo_loc);
-                });
-              }
-
-              // split the command by spaces, need this to be able to spawn
-              var comArr = run.job.after.split(' ');
-              var command = comArr[0];
-              var args = comArr.slice(1);
-
-              // spawn the command
-              var proc = spawn(command, args);
-
-              // read the data coming back on stdout
-              var output = "";
-              proc.stdout.on('data', function (data) {
-                output += data.toString();
-              });
-
-              // save the output
-              proc.on('close', function (code) {
-                var outObj;
-                try {
-                  outObj = JSON.parse(output);
-                } catch(err) {
-                  return callback(err);
-                }
-
-                run.output = outObj;
-                run.save(function (err) {
-                  callback(err, repo_loc);
-                });
-              });
-
-              // write in the data
-              proc.stdin.write(JSON.stringify(allData));
-            });
-          }, function (repo_loc, callback) {
-
-            deletePreservedFiles(repo_loc, run, run.job, callback);
-
-          }, function (repo_loc, callback) {
-            // switch to the branch where we will save results
-            git.checkout_ref(repo_loc, run.job.saveBranch, function (err) {
-              callback(err, repo_loc);
-            });
-          }, function (repo_loc, callback) {
-            // if we're on a tag, let's get the actual commit time stamp so
-            // that we can keep ordering nice
-            if (!run.tagName || run.tagName == '') {
-              return callback(null, repo_loc);
-            }
-
-            // this will query for the date on the commit and save the run
-            // before returning
-            getCommitDate(run, run.job, function (err) {
-              callback(err, repo_loc);
-            });
-
-          }, function (repo_loc, callback) {
-            // get all of the data, the pass it into the grapher
-            var cond = { job : run.job.id, output : { $exists : true } };
-            var opts = { sort : '-ts' };
-            Run.find(cond, {}, opts, function (err, runs) {
-              if (err) return callback(err);
-              // callback signature is (err, files) where files is an
-              // array of all the files that have been changed/added
-              grapher.buildGraphs(runs, run.job, repo_loc, function(err, files) {
-                callback(err, repo_loc, files);
-              });
-            });
-          }, function (repo_loc, files, callback) {
-            // stage the files for commit
-            git.add_files(repo_loc, files, function (err) {
-              callback(err, repo_loc);
-            });
-          }, function (repo_loc, callback) {
-            // commit the files
-
-            var msg = utils.format("Benchmarks run and new results generated for %s", run.lastCommit);
-            git.commit_repo(repo_loc, msg, function (err) {
-              callback(err, repo_loc);
-            });
-          }, function (repo_loc, callback) {
-            // push the files back to Github
-
-            git.push_repo(repo_loc, "origin", run.job.saveBranch, function (err) {
-              callback(err, repo_loc);
-            });
-          }
-        ], function (err, repo_loc) {
-          if (err) {
-            run.status = "error";
-            run.error = err;
-            run.finished = new Date();
-            // save it and go to cleanup
-            return run.save(function (e) {
-              // send the email to let people know it is done
-              sendCompletionEmail(run, emailConfig);
-              cleanup(err || e, repo_loc, queueCallback);
-            });
-          }
-
-          run.finished = new Date();
-          run.status = "success";
-          run.save(function (err) {
-            sendCompletionEmail(run, emailConfig);
-            async.each(run.job.alerts, function (alrt, acb) {
-              switch(alrt.type) {
-                case "std-dev":
-                  processStdDevEmail(run.job, alrt, acb);
-                  break;
-              }
-            }, function (err) {
-              if (err) console.log(err);
-              // no error, go to cleanup
-              cleanup(null, repo_loc, queueCallback);
-            });
-          });
-        });
-      });
+      // this is a commit to a branch that is watched, run it!
+      processRun(run, queueCallback);
     }, 1);
 
     // this is the queue that checks to see if a commit has passed on travis
@@ -757,56 +545,290 @@ mongoose.connect(config.mongoDBuri, function () {
     });
   });
 
-  // this function does the processing on a standard deviation alert
-  function processStdDevEmail(job, alrt, callback) {
-
-    Run.find({ job : job.id, status : "success" }, {}, { sort : '-ts' }, function (err, runs) {
-      if (err) {
-        return callback(err);
-      }
-
-      // grab the most recent run
-      var mostRecent = runs.shift();
-
-      // if this is our very first run, don't worry about any of this
-      if (runs.length == 0) {
-        return callback();
-      }
-      var values = runs.map(function (item) {
-        return Object.byString(item.output[alrt.taskTitle], alrt.field);
-      });
-
-      var set = new gauss.Vector(values);
-      var stdev = set.stdev();
-      var mean = set.mean();
-
-      var mrVal = Object.byString(mostRecent.output[alrt.taskTitle], alrt.field);
-
-      var diff = Math.abs(mean - mrVal);
-      if (diff > stdev) {
-        // send the email
-
-        var title = utils.format("Benchmarks on %s have changed by at least a standard deviation", job.projectName);
-        var bodyTemplate = "Your Benchmarks for %s on the %s ref have finished running.\n\n";
-        bodyTemplate += "The results differed by at least a standard deviation: \n\n";
-        bodyTemplate += "Mean: %d\nStandard Deviation: %d\n Result: %d\n\n";
-        bodyTemplate += "Check the full results on Github";
-        var body = utils.format(bodyTemplate, job.projectName, job.ref, mean, stdev, mrVal);
-
-        smtpTransport.sendMail({
-          from : emailConfig.from,
-          to : emailConfig.to.join(","),
-          subject : title,
-          text : body
-        }, callback);
-
-      } else {
-        // within a standard deviation, don't send an email
-        callback();
-      }
-    });
-  }
 });
+
+/**
+ * This is the function that processes a run and posts the benchmarks to Github
+ *
+ * @param {Run} run - this is the run to process
+ * @param {Function} queueCallback - this is just the callback function
+ */
+
+function processRun(run, queueCallback) {
+  run.populate('job', function (err) {
+    if (err) {
+      console.log(err);
+      return queueCallback(err);
+    }
+    console.log("Running Job: %s", run.job.title);
+    async.waterfall([
+      function (callback) {
+        // clone the repo
+        git.clone(run.job.cloneUrl, callback);
+
+      }, function (repo_loc, callback) {
+        // collect information about host system
+        run.sysinfo.platform = os.platform();
+        run.sysinfo.arch = os.arch();
+        run.sysinfo.release = os.release();
+        run.sysinfo.mem = os.totalmem();
+        run.sysinfo.cpuCount = os.cpus().length;
+        run.sysinfo.cpuVersion = os.cpus()[0].model;
+        // don't bother saving these values to the DB yet. By the end of
+        // this the db will write back and these can piggyback along with
+        // that update
+        callback(null, repo_loc);
+      }, function (repo_loc, callback) {
+
+        getPreservedFiles(repo_loc, run, run.job, callback);
+
+      }, function (repo_loc, callback) {
+
+        // switch to the correct commit
+        git.checkout_commit(repo_loc, run.lastCommit, function (err) {
+          callback(err, repo_loc);
+        });
+
+      }, function (repo_loc, callback) {
+
+        copyinPreservedFiles(repo_loc, run, run.job, callback);
+
+      }, function (repo_loc, callback) {
+
+        runBeforeCommands(repo_loc, run.job, callback);
+
+      }, function (repo_loc, callback) {
+
+        var allSucceed = true;
+        // time to run the actual benchmarks
+        async.eachSeries(run.job.tasks, function (task, cb) {
+          var command = utils.format("cd %s && ", repo_loc) + task.command;
+          exec(command, function (err, stdout, stderr) {
+            var tr = new TaskRun({
+              title : task.title,
+              ts : new Date(),
+              run : run.id,
+              job: run.job.id
+            });
+
+            if (err) {
+              tr.status = "error";
+              tr.rawOut = err.toString();
+              allSucceed = false;
+              return tr.save(cb);
+            }
+
+            tr.status = "success";
+            tr.rawOut = stdout.toString();
+            try {
+              // parse the returned data and save it
+              tr.data = JSON.parse(stdout.toString());
+            } catch(err) {
+              tr.rawOut += err.toString();
+              tr.status = "error";
+              allSucceed = false;
+            }
+
+            tr.save(cb);
+          });
+        }, function (err) {
+          if (err || !allSucceed) {
+            return callback(err || new Error("One or more Tasks failed."), repo_loc);
+          }
+
+          callback(err, repo_loc);
+        });
+      }, function (repo_loc, callback) {
+        // run and post processing steps on the data
+        TaskRun.find({ run : run.id }, function (err, taskRuns) {
+          var allData = {};
+          for (var i=0; i < taskRuns.length; i++) {
+            var tr = taskRuns[i];
+            allData[tr.title] = tr.data;
+          }
+
+          // if after doesn't exist, save the output and move on
+          if (!run.job.after) {
+            run.output = allData;
+            return run.save(function (err) {
+              callback(err, repo_loc);
+            });
+          }
+
+          // split the command by spaces, need this to be able to spawn
+          var comArr = run.job.after.split(' ');
+          var command = comArr[0];
+          var args = comArr.slice(1);
+
+          // spawn the command
+          var proc = spawn(command, args);
+
+          // read the data coming back on stdout
+          var output = "";
+          proc.stdout.on('data', function (data) {
+            output += data.toString();
+          });
+
+          // save the output
+          proc.on('close', function (code) {
+            var outObj;
+            try {
+              outObj = JSON.parse(output);
+            } catch(err) {
+              return callback(err);
+            }
+
+            run.output = outObj;
+            run.save(function (err) {
+              callback(err, repo_loc);
+            });
+          });
+
+          // write in the data
+          proc.stdin.write(JSON.stringify(allData));
+        });
+      }, function (repo_loc, callback) {
+
+        deletePreservedFiles(repo_loc, run, run.job, callback);
+
+      }, function (repo_loc, callback) {
+        // switch to the branch where we will save results
+        git.checkout_ref(repo_loc, run.job.saveBranch, function (err) {
+          callback(err, repo_loc);
+        });
+      }, function (repo_loc, callback) {
+        // if we're on a tag, let's get the actual commit time stamp so
+        // that we can keep ordering nice
+        if (!run.tagName || run.tagName == '') {
+          return callback(null, repo_loc);
+        }
+
+        // this will query for the date on the commit and save the run
+        // before returning
+        getCommitDate(run, run.job, function (err) {
+          callback(err, repo_loc);
+        });
+
+      }, function (repo_loc, callback) {
+        // get all of the data, the pass it into the grapher
+        var cond = { job : run.job.id, output : { $exists : true } };
+        var opts = { sort : '-ts' };
+        Run.find(cond, {}, opts, function (err, runs) {
+          if (err) return callback(err);
+          // callback signature is (err, files) where files is an
+          // array of all the files that have been changed/added
+          grapher.buildGraphs(runs, run.job, repo_loc, function(err, files) {
+            callback(err, repo_loc, files);
+          });
+        });
+      }, function (repo_loc, files, callback) {
+        // stage the files for commit
+        git.add_files(repo_loc, files, function (err) {
+          callback(err, repo_loc);
+        });
+      }, function (repo_loc, callback) {
+        // commit the files
+
+        var msg = utils.format("Benchmarks run and new results generated for %s", run.lastCommit);
+        git.commit_repo(repo_loc, msg, function (err) {
+          callback(err, repo_loc);
+        });
+      }, function (repo_loc, callback) {
+        // push the files back to Github
+
+        git.push_repo(repo_loc, "origin", run.job.saveBranch, function (err) {
+          callback(err, repo_loc);
+        });
+      }
+    ], function (err, repo_loc) {
+      if (err) {
+        run.status = "error";
+        run.error = err;
+        run.finished = new Date();
+        // save it and go to cleanup
+        return run.save(function (e) {
+          // send the email to let people know it is done
+          sendCompletionEmail(run, emailConfig);
+          cleanup(err || e, repo_loc, queueCallback);
+        });
+      }
+
+      run.finished = new Date();
+      run.status = "success";
+      run.save(function (err) {
+        sendCompletionEmail(run, emailConfig);
+        async.each(run.job.alerts, function (alrt, acb) {
+          switch(alrt.type) {
+            case "std-dev":
+              processStdDevEmail(run.job, alrt, acb);
+              break;
+          }
+        }, function (err) {
+          if (err) console.log(err);
+          // no error, go to cleanup
+          cleanup(null, repo_loc, queueCallback);
+        });
+      });
+    });
+  });
+}
+
+/**
+ * This function does the processing on a standard deviation alert.
+ *
+ * @param {Job} job - the job we are checking the standard deviation for
+ * @param {Alert} alrt - the meta data about the specific alert we're processing
+ * @parma {Function} callback
+ */
+
+function processStdDevEmail(job, alrt, callback) {
+
+  Run.find({ job : job.id, status : "success" }, {}, { sort : '-ts' }, function (err, runs) {
+    if (err) {
+      return callback(err);
+    }
+
+    // grab the most recent run
+    var mostRecent = runs.shift();
+
+    // if this is our very first run, don't worry about any of this
+    if (runs.length == 0) {
+      return callback();
+    }
+    var values = runs.map(function (item) {
+      return Object.byString(item.output[alrt.taskTitle], alrt.field);
+    });
+
+    var set = new gauss.Vector(values);
+    var stdev = set.stdev();
+    var mean = set.mean();
+
+    var mrVal = Object.byString(mostRecent.output[alrt.taskTitle], alrt.field);
+
+    var diff = Math.abs(mean - mrVal);
+    if (diff > stdev) {
+      // send the email
+
+      var title = utils.format("Benchmarks on %s have changed by at least a standard deviation", job.projectName);
+      var bodyTemplate = "Your Benchmarks for %s on the %s ref have finished running.\n\n";
+      bodyTemplate += "The results differed by at least a standard deviation: \n\n";
+      bodyTemplate += "Mean: %d\nStandard Deviation: %d\n Result: %d\n\n";
+      bodyTemplate += "Check the full results on Github";
+      var body = utils.format(bodyTemplate, job.projectName, job.ref, mean, stdev, mrVal);
+
+      smtpTransport.sendMail({
+        from : emailConfig.from,
+        to : emailConfig.to.join(","),
+        subject : title,
+        text : body
+      }, callback);
+
+    } else {
+      // within a standard deviation, don't send an email
+      callback();
+    }
+  });
+}
 
 /**
  * This is the cleanup command. It will print any errors and then delete the
