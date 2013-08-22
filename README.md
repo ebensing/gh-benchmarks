@@ -16,7 +16,7 @@ should be run for your project. Each Job is made up of a collection of tasks,
 these tasks are shell commands that should run your benchmarks (IE. `node
 benchmarks.js` or `make benchmarks`).
 
-Each task should output *JSON* data representing the information collected
+Each task should output **JSON** data representing the information collected
 during that benchmark run. It does not need to be in any specific format,
 unless you are using one of the pre-made templates, in which case it should
 conform to those standards.
@@ -47,6 +47,7 @@ Table of Contents
   - [repoUrl](#repourl---string)
   - [cloneUrl](#cloneurl---string)
   - [ref](#ref---string)
+  - [watchPullRequests](#watchpullrequests---boolean)
   - [tags](#tags---array-of-strings)
   - [before](#before---array-of-strings)
   - [tasks](#tasks---array-of-tasks)
@@ -59,6 +60,7 @@ Table of Contents
   - [saveBranch](#savebranch---string)
   - [saveLoc](#saveloc---string)
   - [preservedFiles](#preservedfiles---object)
+- [Pull Requests](#pull-requests)
 - [Admin Commands](#admin-commands)
 - [Extending the Charts](#extending-the-charts)
 
@@ -81,6 +83,12 @@ Workflow
 7. Then, the system generates the charts specified in the config file.
 8. Finally, these charts are then committed and pushed to Github (by default,
    in the gh-pages branch)
+
+**Note**: For pull requests, the workflow is roughly the same except the
+benchmark results will not be compiled into a graph and uploaded, but instead
+they will be posted as a comment on the pull request. This is why it is
+recommended that you have your benchmarks output human-readable text when the
+`PULL_REQUEST` environment variable is set.
 
 Installation
 ====================
@@ -144,7 +152,9 @@ might ask. Fear not! There are a couple options. You essentially just need to
 keep `node app.js` running.
 
 Easiest: [Forever](https://github.com/nodejitsu/forever) - This isn't
-necessarily the most robust way of doing things, but it is pretty simple.
+necessarily the most robust way of doing things, but it is pretty simple. I've
+even included a `start.sh` script which will take care of all the forever stuff
+for you. This is the recommended way of running gh-benchmarks.
 
 Probably Better: [upstart & monit](http://howtonode.org/deploying-node-upstart-monit)
 
@@ -157,6 +167,9 @@ First, you will need to find the IP that your docker0 interface is using. You
 can do this by running `ifconfig` and looking for the `docker0` entry. Copy
 this IP. You will need to replace the IP for `localhost` found in
 `docker/hosts`.
+
+You can then use `make` to build the docker image. `make run` will run the
+docker image.
 
 Additionally, this image does not have MongoDB on it. That will still need to
 be on the host system. You will need to have appropriately configured SSH keys
@@ -178,6 +191,11 @@ repository's home page
    server.js to see what this value is for you.
 5. (Optional) It is recommended that you make the port only available to the
    IPs listed below the "Update settings" button
+
+**Note**: If you have pull request support enabled, the system will
+automatically create another webhook to support this. In order to facilitate
+this webhook creation, Github credentials and the `local_url` setting are
+needed.
 
 
 Configuration
@@ -206,6 +224,8 @@ server.js
   default this is `config/jobs.json`
 * **emailFile** - This is the JSON file which contains the email configuration
   information
+* **local_url** - This is the URL for the machine from the outside. The pull
+  request webhook will be created using this URL.
 
 email.json
 --------------------
@@ -241,6 +261,8 @@ you don't know what this means, take a look at the examples
   cloneUrl : "git@github.com:LearnBoost/mongoose.git",
   // This is the branch or tag name that the job should watch for
   ref : "master",
+  // run benchmarks on pull requests? (true to enabled, false to disable)
+  watchPullRequests : true,
   // tags to run these tests on
   tags : [ "3.6.15", "3.6.14" ],
   // These are the commands to run before the tasks run
@@ -310,6 +332,13 @@ ref - String
 This is the ref name for what should be watched. The system will listen for
 push webhooks from Github and run the benchmarks if it is for a branch that we
 are interested in.
+
+watchPullRequests - Boolean
+--------------------
+
+This is whether or not to run the benchmarks on all pull requests. It will
+enable pull requests on all current pull requests and any incoming pull
+requests. `true` to enabled.
 
 tags - Array of Strings
 --------------------
@@ -529,6 +558,9 @@ These are only other files in the repository. This feature is meant to allow
 you to either keep all benchmarking code in its own branch or to run these
 benchmarks on old tags that do not have the benchmarks in them.
 
+If you would like your preservedFiles during pull request runs, include
+`__PULLREQUESTS__` as a value in the `ref` array.
+
 Pull Requests
 ====================
 
@@ -547,6 +579,9 @@ login credentials to Github. These should be specified via the `githubUsername`
 and `githubPassword` environment variables. Even if you do not run the
 benchmarks against pull requests, it is still recommended to have these set
 because it will greatly increase the number of API requests allowed per hour.
+The start.sh script will ask you for your username and password before
+continuing, it is recommended that you use this script and
+[forever](https://github.com/nodejitsu/forever) to run gh-benchmarks.
 
 If you would like access to your preservedFiles during pull requests, you need
 to add `__PULLREQUESTS__` to the ref list on the `preservedFiles` property.
