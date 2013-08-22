@@ -631,7 +631,7 @@ existing grapher by submitting pull requests to
 by creating your own module. Installation/specs are below
 
 You can see where we import the grapher at around [line
-50](https://github.com/ebensing/gh-benchmarks/blob/master/app.js#L50) in
+74](https://github.com/ebensing/gh-benchmarks/blob/master/app.js#L74) in
 app.js. To install your new grapher, simply change this one line.
 
 A grapher module must export 1 method, `buildGraphs`
