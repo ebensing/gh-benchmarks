@@ -7,7 +7,7 @@
       "cloneUrl" : "git@github.com:LearnBoost/mongoose.git",
       "ref" : "master",
       "watchPullRequests" : true,
-      "tags" : [ "3.7.2" ],
+      "tags" : [ "3.7.2", "3.7.3" ],
       "tasks" : [
         { "title" : "insert", "command" : "export MONGOOSE_DISABLE_STABILITY_WARNING='true' && node benchmarks/benchjs/insert.js" },
         { "title" : "delete", "command" : "export MONGOOSE_DISABLE_STABILITY_WARNING='true' && node benchmarks/benchjs/delete.js" },
