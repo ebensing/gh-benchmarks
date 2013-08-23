@@ -69,6 +69,8 @@ Table of Contents
   - [preservedFiles](#preservedfiles---object)
 - [Pull Requests](#pull-requests)
 - [Admin Commands](#admin-commands)
+  - [runFailed](#runfailed)
+  - [runCommit](#runcommit)
 - [Extending the Charts](#extending-the-charts)
 
 Workflow
