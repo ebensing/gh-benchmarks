@@ -7,12 +7,19 @@ Basically, TravisCI but for benchmarks.
 Overview
 ====================
 
-gh-benchmarks it is meant to be language agnostic- if you set everything up
+gh-benchmarks was built to make benchmarks a more natural part of the
+development process. Unlike tests, benchmarks can take minutes to run, and
+generally are only run on major releases or just not used at all. This makes it
+more difficult to determine where speed gains or losses are happening. Once
+setup and configured, gh-benchmarks should be something you can let run and
+forget about, much like TravisCI.
+
+gh-benchmarks is meant to be language agnostic- if you set everything up
 correctly, this should be able to do benchmarks for any piece of software.
 
 Each instance of gh-benchmarks that is running (only recommend 1 per sever),
 has a collection of jobs to run. These jobs describe different benchmarks that
-should be run for your project. Each Job is made up of a collection of tasks,
+should be run for your projects. Each Job is made up of a collection of tasks,
 these tasks are shell commands that should run your benchmarks (IE. `node
 benchmarks.js` or `make benchmarks`).
 
@@ -22,7 +29,7 @@ unless you are using one of the pre-made templates, in which case it should
 conform to those standards.
 
 Each job also has charts associated with it. These can be bar or line charts.
-(by default, you are welcome to extend the functionality and create new charts!
+(by default- you are welcome to extend the functionality and create new charts!
 See below for more information) They will be uploaded into a specified branch
 of your Github repository along with the data. (By default, this all goes in
 your gh-pages branch)
